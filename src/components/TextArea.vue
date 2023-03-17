@@ -107,7 +107,7 @@
               </v-stepper-items>
             </v-stepper>
             </div>
-          <v-card class="mx-auto" max-width="344">
+          <v-card class="mx-auto" max-width="40em">
             <v-card-text>
               <p class="text-h4 text--primary">
                 {{ this.selectedAuthor }} Book: {{ this.selectedBook }}
@@ -122,9 +122,9 @@
                   <v-list-item
                       v-for="(author, index) in authors"
                       :key="index"
-                      v-on:click="setAuthorTo(author)"
+                      v-on:click="setAuthorTo(author.name)"
                   >
-                    <v-list-item-title>{{ author }}</v-list-item-title>
+                    <v-list-item-title>{{ author.name }}</v-list-item-title>
                   </v-list-item>
                 </v-list>
               </v-menu>
@@ -200,6 +200,7 @@
                 <v-btn text color="teal accent-4" @click="reveal = false">
                   Close
                 </v-btn>
+              </v-card-actions>
               </v-card-actions>
             </v-card>
             <div style="margin-bottom:1em; margin-left:1em;">
@@ -290,12 +291,14 @@
 </template>
 
 <script>
+import {HerodotosTreeQuery, CheckGrammar, HerodotosCreateSentence, HerodotosCheckSentence} from '../constants/graphql'
+
 export default {
-  name: "SentenceArea",
+  name: "TextArea",
   computed: {
     theme(){
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
-    }
+    },
   },
   data() {
     return {
@@ -320,53 +323,85 @@ export default {
       stepper: 1,
     }
   },
+  apollo: {
+    authors: {
+      query: HerodotosTreeQuery,
+      result({data, loading, networkStatus}) {
+        const nameCapitalized = data.authors[0].name.charAt(0).toUpperCase() + data.authors[0].name.slice(1)
+        this.selectedAuthor = nameCapitalized
+        {
+          const nameCapitalized = data.authors[0].name.charAt(0).toUpperCase() + data.authors[0].name.slice(1)
+          this.selectedAuthor = nameCapitalized
+          const innerBooks = []
+          data.authors[0].books.forEach(function (book) {
+            innerBooks.push(book.book)
+          })
+          this.books = innerBooks
+          this.setBookTo(innerBooks[0])
+        }
+      }
+    },
+},
   methods: {
     setAuthorTo(author) {
-      this.selectedAuthor = author
-      this.getBooks(this.selectedAuthor)
+      const nameCapitalized = author.charAt(0).toUpperCase() + author.slice(1)
+      this.selectedAuthor = nameCapitalized
+      const innerBooks = []
+      this.authors.forEach(function (loopAuthor) {
+        if (loopAuthor.name === author) {
+          loopAuthor.books.forEach(function (book) {
+            innerBooks.push(book.book)
+          })
+        }
+      })
+      this.books = innerBooks
+      this.setBookTo(innerBooks[0])
     },
     setBookTo(book) {
       this.selectedBook = book
       this.getNewSentence()
     },
     queryWord: function (word) {
-      let url = `${this.$dionysiosUrl}/checkGrammar?word=${word}`
-      this.$apiClient.get(url)
-          .then((response) => {
-            let extraTranslation = []
-            for (let i = 0; i < response.data.results.length; i++) {
-              if (response.data.results[i].translation === "") {
-                response.data.results[i].translation = "No translation found"
+      this.$apollo.query({
+        query: CheckGrammar,
+        variables: {
+          word: word,
+        },
+      }).then((response) => {
+        let extraTranslation = []
+        for (let i = 0; i < response.data.grammar.length; i++) {
+          if (response.data.grammar[i].translation === "") {
+            response.data.grammar[i].translation = "No translation found"
+          }
+
+          if (response.data.grammar[i].translation.length > 25) {
+            let words = response.data.grammar[i].translation.split(";")
+            if (words.length > 1) {
+              for (let j = 0; j < words.length; j++) {
+                let rule = response.data.grammar[i].rule
+                let rootWord = response.data.grammar[i].rootWord
+                extraTranslation.push(
+                    {
+                      "word": word,
+                      "rule": rule,
+                      "rootWord": rootWord,
+                      "translation": words[j]
+                    }
+                )
               }
 
-              if (response.data.results[i].translation.length > 25) {
-                let words = response.data.results[i].translation.split(";")
-                if (words.length > 1) {
-                  for (let j = 0; j < words.length; j++) {
-                    let rule = response.data.results[i].rule
-                    let rootWord = response.data.results[i].rootWord
-                    extraTranslation.push(
-                        {
-                          "word": word,
-                          "rule": rule,
-                          "rootWord": rootWord,
-                          "translation": words[j]
-                        }
-                    )
-                  }
-
-                  response.data.results.splice(i, 1)
-                }
-              }
+              response.data.results.splice(i, 1)
             }
+          }
+        }
 
-            this.grammarResults = response.data.results
-            if (extraTranslation !== []) {
-              for (let i= 0; i < extraTranslation.length; i++) {
-                this.grammarResults.push(extraTranslation[i])
-              }
-            }
-          })
+        this.grammarResults = response.data.grammar
+        if (extraTranslation !== []) {
+          for (let i= 0; i < extraTranslation.length; i++) {
+            this.grammarResults.push(extraTranslation[i])
+          }
+        }
+      })
           .catch(e => {
             this.grammarResults =  [{
               "word"  :  word,
@@ -378,77 +413,44 @@ export default {
             this.errors.push(e)
           })
     },
-    getAuthors: function () {
-      let url = `${this.$herodotosUrl}/authors`
-      this.$apiClient.get(url)
-          .then((response) => {
-            let i;
-            for (i in response.data.authors) {
-              const author = response.data.authors[i].author
-              const nameCapitalized = author.charAt(0).toUpperCase() + author.slice(1)
-              this.authors.push(nameCapitalized)
-            }
 
-            this.selectedAuthor = this.authors[0]
-            this.getBooks(this.selectedAuthor)
-          })
-          .catch(e => {
-            this.errors.push(e)
-          })
-    },
-    getBooks: function (author) {
-      this.books = []
-      if (author === "") {
-        author = this.selectedAuthor
-      }
-
-      let url = `${this.$herodotosUrl}/authors/${author}/books`
-      this.$apiClient.get(url)
-          .then((response) => {
-            let i;
-            for (i in response.data.books) {
-              const book = response.data.books[i].book
-              this.books.push(book)
-            }
-            this.setBookTo(this.books[0])
-          })
-          .catch(e => {
-            console.log(e)
-            this.errors.push(e)
-          })
-    },
     getNewSentence: function () {
       const author = this.selectedAuthor.toLowerCase()
-      let url = `${this.$herodotosUrl}/createQuestion?author=${author}&book=${this.selectedBook}`
-      this.$apiClient.get(url)
-          .then((response) => {
-            this.sentence = response.data.sentence
-            let cleanedText = response.data.sentence
-                .replaceAll(",", "")
-                .replaceAll(".", "")
-                .replaceAll("—", " ")
-            this.seperatedWords = cleanedText.split(" ")
-            this.currentSentenceId = response.data.sentenceId
-          })
-          .catch(e => {
-            console.log(e)
-            this.errors.push(e)
-          })
+      this.$apollo.query({
+        query: HerodotosCreateSentence,
+        variables: {
+          author: author,
+          book: this.selectedBook.toString()
+        },
+        fetchPolicy: "no-cache",
+      }).then((response) => {
+        this.sentence = response.data.sentence.greek
+        let cleanedText = response.data.sentence.greek
+            .replaceAll(",", "")
+            .replaceAll(".", "")
+            .replaceAll("—", " ")
+        this.seperatedWords = cleanedText.split(" ")
+        this.currentSentenceId = response.data.sentence.id
+      })
+      .catch(e => {
+        console.log(e)
+        this.errors.push(e)
+      })
     },
     checkAnswer: function () {
       const author = this.selectedAuthor.toLowerCase()
-      this.$apiClient({
-        method: 'post',
-        url: `${this.$herodotosUrl}/checkSentence`,
-        data: {
-          "answerSentence": this.translationText,
-          "sentenceId": this.currentSentenceId,
-          "author": author
-        }
+      this.$apollo.query({
+        query: HerodotosCheckSentence,
+        variables: {
+          sentenceId: this.currentSentenceId,
+          author: author,
+          answer: this.translationText,
+        },
+        fetchPolicy: "no-cache",
       }).then((response) => {
-        this.translationPercentage = response.data.levenshteinPercentage
-        this.databaseAnswer = response.data.quizSentence
-        this.searchPossibleTypos(response.data.nonMatchingWords)
+        this.translationPercentage = response.data.text.levenshtein
+        this.databaseAnswer = response.data.text.quiz
+        this.searchPossibleTypos(response.data.text.mistakes)
       })
     },
     searchPossibleTypos: function (words) {
@@ -456,12 +458,12 @@ export default {
       let i;
       for (i in words) {
         let j;
-        for (j in words[i].matches) {
-          const percentage = parseFloat(words[i].matches[j].percentage);
-          if (words[i].matches[j].levenshtein <= 2 && percentage > 50.00) {
+        for (j in words[i].nonMatches) {
+          const percentage = parseFloat(words[i].nonMatches[j].percentage);
+          if (words[i].nonMatches[j].levenshtein <= 2 && percentage > 50.00) {
             let jsonMap = {
               "provided": words[i].word,
-              "verified": words[i].matches[j].match
+              "verified": words[i].nonMatches[j].match
             }
             this.possibleTypos.push(jsonMap)
           }
@@ -470,10 +472,9 @@ export default {
     },
   },
   mounted() {
-    this.getAuthors();
   },
   created() {
-  }
+  },
 }
 </script>
 

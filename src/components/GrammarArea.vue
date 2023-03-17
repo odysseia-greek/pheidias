@@ -78,7 +78,12 @@
               </v-stepper-items>
             </v-stepper>
           </div>
-      <v-card color="background" dark>
+          <v-card
+              class="mx-auto"
+              color="background"
+              dark
+              width="100em"
+          >
       <v-app-bar
       height="150em"
       prominent
@@ -89,10 +94,10 @@
         <v-text-field
             label="What Greek word are you trying to decline?"
             v-model="queryWord"
-            @keydown.enter="queryGrammarWord"
+            @keydown.enter="grammarWord"
         ></v-text-field>
           <v-btn icon
-                 @click="queryGrammarWord">
+                 @click="grammarWord">
             <v-icon>mdi-magnify</v-icon>
             </v-btn>
         </template>
@@ -121,6 +126,8 @@
 </template>
 
 <script>
+import {CheckGrammar} from "@/constants/graphql";
+
 export default {
   name: "GrammarArea",
   computed: {
@@ -150,6 +157,62 @@ export default {
     }
   },
   methods: {
+    grammarWord: function () {
+      this.loading = true
+      this.searchResults = []
+      this.$apollo.query({
+        query: CheckGrammar,
+        variables: {
+          word: this.queryWord,
+        },
+      }).then((response) => {
+        let extraTranslation = []
+        for (let i = 0; i < response.data.grammar.length; i++) {
+          if (response.data.grammar[i].translation === "") {
+            response.data.grammar[i].translation = "No translation found"
+          }
+
+          if (response.data.grammar[i].translation.length > 25) {
+            let words = response.data.grammar[i].translation.split(";")
+            if (words.length > 1) {
+              for (let j = 0; j < words.length; j++) {
+                let rule = response.data.grammar[i].rule
+                let rootWord = response.data.grammar[i].rootWord
+                extraTranslation.push(
+                    {
+                      "word": this.queryWord,
+                      "rule": rule,
+                      "rootWord": rootWord,
+                      "translation": words[j]
+                    }
+                )
+              }
+
+              response.data.results.splice(i, 1)
+            }
+          }
+        }
+
+        this.grammarResults = response.data.grammar
+        if (extraTranslation !== []) {
+          for (let i= 0; i < extraTranslation.length; i++) {
+            this.grammarResults.push(extraTranslation[i])
+          }
+        }
+      })
+          .catch(e => {
+            this.grammarResults =  [{
+              "word"  :  this.queryWord,
+              "translation"   :  "No translation found",
+              "rootWord"      :  this.queryWord,
+              "rule" : "No rule found"
+            }]
+
+            this.errors.push(e)
+          })
+    },
+
+
     queryGrammarWord: function () {
       let url = `${this.$dionysiosUrl}/checkGrammar?word=${this.queryWord}`
       this.$apiClient.get(url)

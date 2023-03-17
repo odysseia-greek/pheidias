@@ -4,13 +4,19 @@
         id="dictionaryarea"
         :style="{background: $vuetify.theme.themes[theme].background}"
     >
-      <v-card color="primary" dark>
+      <br>
+      <v-card
+          class="mx-auto"
+          color="primary"
+          dark
+          width="100em"
+      >
         <v-card-text>
           Explore hundreds of words available on the database for more
           information see
           <a
               class="grey--text text--lighten-3"
-              href="https://github.com/joerivrij/odysseia/tree/master/demokritos/lexiko"
+              href="https://github.com/odysseia-greek/ionia/tree/master/demokritos/lexiko"
               target="_blank"
           >the GitHub repository</a
           >
@@ -53,6 +59,8 @@
 </template>
 
 <script>
+import {DictionaryEntry} from "@/constants/graphql";
+
 export default {
   name: "DictionaryArea",
   computed: {
@@ -69,7 +77,7 @@ export default {
           sortable: true,
           value: 'greek',
         },
-        { text: 'English', value: 'english' },
+        { text: 'English', value: 'english' }
       ],
       searchResults: [],
       errors: [],
@@ -82,20 +90,23 @@ export default {
     submitSearch: function (value) {
       this.loading = true
       this.searchResults = []
-      let url = `${this.$alexandrosUrl}/search?word=${value}`
-      this.$apiClient.get(url)
-          .then((response) => {
-            this.searchResults = response.data
-            setTimeout(() => {
-              this.loading = false
-            }, 1500)
-          })
-          .catch(e => {
-            console.log(e)
-            setTimeout(() => {
-              this.loading = false
-            }, 1500)
-          })
+      this.$apollo.query({
+        query: DictionaryEntry,
+        variables: {
+          word: value,
+        },
+        fetchPolicy: "no-cache",
+      }).then((response) => {
+        this.searchResults = response.data.dictionary
+        setTimeout(() => {
+          this.loading = false
+        }, 1500)
+      })
+      .catch(e => {
+        setTimeout(() => {
+          this.loading = false
+        }, 1500)
+      })
     },
   },
   watch: {
