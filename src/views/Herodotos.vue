@@ -1,11 +1,11 @@
 <template>
   <div>
-    <sentence-area></sentence-area>
+    <text-area></text-area>
   </div>
 </template>
 
 <script>
-import SentenceArea from "@/components/SentenceArea";
+import TextArea from "@/components/TextArea.vue";
 
 export default {
   name: 'Herodotos',
@@ -14,8 +14,8 @@ export default {
     }
   },
   components: {
-    SentenceArea,
-    'sentence-area': SentenceArea
+    TextArea,
+    'text-area': TextArea
   },
   methods: {},
   computed: {

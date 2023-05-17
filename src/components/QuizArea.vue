@@ -50,7 +50,7 @@
                       class="mb-12"
                       color="white"
                       height="14em"
-                  >Press one of the buttons below "Available Methods". And a popup will appear with each category for that method.
+                  >Press one of the buttons below "Methods". The categories for that Method can then be selected.
                   <br>
                     Some of these are based on books (such as Aristophanes -> frogs) and others on more general terms.
                     <br>
@@ -121,43 +121,55 @@
               </v-stepper-items>
             </v-stepper>
           </div>
-          <h4>Available Methods</h4>
-          <v-row justify="center" align="center">
-            <v-menu
-                v-for="(method, index) in this.methods"
-                :key="method"
-                transition="slide-y-transition"
+          <br />
+
+          <v-card
+              class="mx-auto"
+              max-width="20em"
+          >
+            <v-toolbar
+                color="primary"
+                dark
+                dense
             >
-              <template v-slot:activator="{ attrs, on }">
-                <v-btn
-                    v-bind="attrs"
-                    v-on="on"
-                    rounded
-                    color="primary"
-                    class="ma-2"
-                    dark
-                    @click="selectedMethod = methods[index];"
-                    v-on:click="getCategories(methods[index])"
-                >
-                  {{ method }}
-                </v-btn>
-              </template>
-              <v-list>
+              <v-toolbar-title>Methods</v-toolbar-title>
+
+              <v-spacer></v-spacer>
+
+            </v-toolbar>
+
+            <v-list>
+              <v-list-group
+                  v-for="item in methods"
+                  @click="selectedMethod = item.name;"
+                  :key="item.name"
+                  v-model="item.active"
+                  :prepend-icon="item.action"
+                  no-action
+              >
+                <template v-slot:activator>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="item.name"></v-list-item-title>
+                  </v-list-item-content>
+                </template>
+
                 <v-list-item
-                    v-for="item in categories"
-                    :key="item"
-                    @click="category = item;setChapter(1)"
-                    v-on:click="getChapters"
+                    v-for="child in item.categories"
+                    :key="child.name"
+                    @click="category=child.name;setChapter(1)"
+                    v-on:click="getChapters(child.name, item.name);scrollMeTo('chapter');item.active=false"
                 >
-                  <v-list-item-title v-text="item"></v-list-item-title>
+                  <v-list-item-content>
+                    <v-list-item-title v-text="child.name"></v-list-item-title>
+                  </v-list-item-content>
                 </v-list-item>
-              </v-list>
-            </v-menu>
-          </v-row>
+              </v-list-group>
+            </v-list>
+          </v-card>
+
           <br />
           <br />
-          <br />
-            <v-container v-if="category.length">
+            <v-container v-if="category.length" ref="chapter">
               <v-row justify="center" align="center">
                 <v-col
                     cols="12"
@@ -177,7 +189,7 @@
                       color="primary"
                       dark
                       rounded
-                      @click="validate()"
+                      @click="validate();scrollMeTo('quiz')"
                   >
                     Set Chapter
                   </v-btn>
@@ -185,9 +197,8 @@
               </v-row>
             </v-container>
           <br>
-          <br>
 
-          <div v-if="quizWord.length">
+          <div ref="quiz" v-if="quizWord.length">
           <h2>Method: {{this.selectedMethod}} - Category: {{ this.category}} - Chapter {{this.selectedChapter}}</h2>
           <h3>Translate:</h3>
           <h3>{{quizWord}}</h3>
@@ -253,11 +264,8 @@
             </v-alert>
           </div>
           <div v-if="!showAnswer && showButtons">
-            <v-btn
-                v-for="(item, index) in answers"
-                :key="index"
-                @click="selectedAnswer = item"
-                v-on:click="postAnswer();showLoader();"
+            <v-btn v-for="item in answers"
+                v-on:click="checkAnswer(item);showLoader();"
                 class="ma-4"
                 color="triadic"
                 :width="widthStyle"
@@ -317,6 +325,8 @@
 <script>
 
 
+import {SokratesCheckAnswer, SokratesCreateQuestion, SokratesTreeQuery} from "@/constants/graphql";
+
 export default {
   name: "QuizArea",
   computed: {
@@ -334,7 +344,7 @@ export default {
         {text: 'Category', value: 'category', align: 'center'}
       ],
       historyTable: [],
-      widthStyle : "50%",
+      widthStyle : "33%",
       valid: true,
       showButtons: false,
       alignments: [
@@ -347,7 +357,6 @@ export default {
       correctAnswer: "",
       quizWord: [],
       answers: [],
-      selectedAnswer : "",
       correct: false,
       category: "",
       selectedMethod: "",
@@ -355,8 +364,8 @@ export default {
       correctlyAnswered: 0,
       percentage: 100,
       graphNumbers: [0],
-      chapters : '',
-      labelText: `Chapters: (1 - 1)`,
+      chapters : "",
+      labelText: 'Chapters: (1 - 1)',
       numberRules: [
         v => !!v || 'Chapter is required',
         v => (v && v <= this.chapters) || 'Chapter cannot exceed chapters',
@@ -380,6 +389,15 @@ export default {
       displayInfo: false,
     }
   },
+  apollo: {
+    methods: {
+      query: SokratesTreeQuery,
+      result({data, loading, networkStatus}) {
+        this.selectedMethod = data.methods[0].name
+      },
+      pollInterval: 5 * 60 * 1000, // refresh data every 5 min
+    },
+  },
   methods: {
     showLoader () {
       this.value = 0
@@ -399,20 +417,71 @@ export default {
         }
       }, 2000);
     },
+    scrollMeTo(refName) {
+      let element = this.$refs[refName];
+      let top = element.offsetTop;
+
+      window.scrollTo(0, top);
+    },
     async getQuestion () {
       this.showButtons = false
-      let url = `${this.$sokratesUrl}/createQuestion?method=${this.selectedMethod}&category=${this.category}&chapter=${this.selectedChapter}`
-      this.$apiClient.get(url)
-          .then(async (response) => {
-            this.quizWord = response.data[0];
-            this.correctAnswer = response.data[1]
-            let slicedArray = response.data.slice(1, 5)
-            this.answers = await this.createNewArray(slicedArray);
-            this.showButtons = true
-          })
+      this.$apollo.query({
+          query: SokratesCreateQuestion,
+          variables: {
+            category: this.category,
+            chapter: this.selectedChapter,
+            method: this.selectedMethod,
+          },
+        fetchPolicy: "no-cache",
+      }).then(async (response) => {
+        console.log(response)
+        this.quizWord = response.data.quiz.question;
+        this.correctAnswer = response.data.quiz.answer
+        let slicedArray = response.data.quiz.quiz.slice(0, 4)
+        this.answers = await this.createNewArray(slicedArray);
+        this.showButtons = true
+      })
+    },
+    checkAnswer (selectedAnswer) {
+      this.answered++
+      this.$apollo.query({
+        query: SokratesCheckAnswer,
+        variables: {
+          answerProvided: selectedAnswer,
+          quizWord: this.quizWord
+        },
+        fetchPolicy: "no-cache",
+      }).then((response) => {
+        this.correct = response.data.answer.correct
+        this.showAnswer = true;
+        if (this.correct) {
+          this.correctlyAnswered++
+        }
+
+        let color = "#1de9b6"
+        if(!this.correct) {
+          color = "#e9501d"
+        }
+
+        let lastAnswer = {
+          greek: this.quizWord,
+          color: color,
+          answer: this.correctAnswer,
+          input: selectedAnswer,
+          category: this.category,
+          method: this.selectedMethod,
+        }
+
+        this.historyTable.unshift(lastAnswer)
+
+        this.percentage = Math.round(this.correctlyAnswered / this.answered * 100)
+        let inNumbers = Math.round(this.correctlyAnswered / this.answered * 10)
+        this.graphNumbers.push(inNumbers)
+      })
           .catch(e => {
             this.errors.push(e)
           })
+      this.hideAlert()
     },
     async createNewArray(shuffeledArray) {
       for (let i = shuffeledArray.length - 1; i > 0; i--) {
@@ -422,115 +491,41 @@ export default {
 
       return shuffeledArray
     },
-    getCategories: function (method) {
-      let url = `${this.$sokratesUrl}/methods/${method}/categories`
-      this.$apiClient.get(url)
-          .then((response) => {
-            this.categories = []
-            let i;
-            for (i in response.data.categories) {
-              const category = response.data.categories[i].category
-              this.categories.push(category)
-            }
-          })
-          .catch(e => {
-            this.errors.push(e)
-          })
-    },
     getNextQuestion: function () {
       clearInterval(this.interval)
       this.value = 0
       this.showAnswer = false;
       this.getQuestion()
     },
-    postAnswer: function () {
-      this.answered++
-      this.$apiClient({
-        method: 'post',
-        url: `${this.$sokratesUrl}/answer`,
-        data: {
-          "answerProvided" : this.selectedAnswer,
-          "quizWord": this.quizWord,
-          "category": this.category
-        }
-      })
-          .then((response) => {
-            this.correct = response.data['correct']
-            this.showAnswer = true;
-            if (this.correct) {
-              this.correctlyAnswered++
-            }
-
-            let color = "#1de9b6"
-            if(!this.correct) {
-              color = "#e9501d"
-            }
-
-            let lastAnswer = {
-              greek: this.quizWord,
-              color: color,
-              answer: this.correctAnswer,
-              input: this.selectedAnswer,
-              category: this.category,
-              method: this.selectedMethod,
-            }
-
-            this.historyTable.unshift(lastAnswer)
-
-            this.percentage = Math.round(this.correctlyAnswered / this.answered * 100)
-            let inNumbers = Math.round(this.correctlyAnswered / this.answered * 10)
-            this.graphNumbers.push(inNumbers)
-          })
-          .catch(e => {
-            this.errors.push(e)
-          })
-      this.hideAlert()
-
-    },
-    setCategory(category) {
-      this.category = category
-    },
     resetProgress : function () {
       this.correctlyAnswered = 0
       this.answered = 0
       this.percentage = 100
     },
-    getChapters : function () {
-      let url = `${this.$sokratesUrl}/methods/${this.selectedMethod}/categories/${this.category}/chapters`
-      this.$apiClient.get(url)
-          .then((response) => {
-            this.chapters = response.data['lastChapter']
-            this.labelText = `Chapters: (1 - ${response.data['lastChapter']})`
-          })
-
-          .catch(e => {
-            this.errors.push(e)
-          })
-    },
-    getMethods : function () {
-      let url = `${this.$sokratesUrl}/methods`
-      this.$apiClient.get(url)
-          .then((response) => {
-            this.methods = []
-            let i;
-            for (i in response.data.methods) {
-              const method = response.data.methods[i].method
-              this.methods.push(method)
-            }
-          })
-          .catch(e => {
-            this.errors.push(e)
-          })
-    },
     setChapter(chapter) {
       this.selectedChapter = chapter
       this.getQuestion()
     },
+    getChapters(selectedCategory, selectedMethod) {
+      let highChapter = 1
+      this.methods.forEach(function (method) {
+        if (method.name === selectedMethod) {
+          method.categories.forEach( function (category) {
+            if (category.name === selectedCategory) {
+              highChapter = category.highestChapter
+            }
+          })
+        }
+      })
+      this.chapters = highChapter
+      this.labelText = `Chapters: (1 - ${highChapter})`
+    },
     validate() {
-      const isNotZero = this.inputChapter < 1
-      const higher = this.inputChapter > this.chapters
+      const validator = parseInt(this.inputChapter)
+      const isNotZero = validator < 1
+      const higher = validator > this.chapters
       if (!isNotZero && !higher) {
-        this.setChapter(this.inputChapter)
+        this.setChapter(validator)
       }
     },
     isMobile() {
@@ -538,13 +533,11 @@ export default {
     },
   },
   mounted() {
-    this.getMethods()
     this.correctlyAnswered = 0
     this.answered = 0
     this.percentage = 100
   },
   created() {
-    this.getMethods()
     if (this.isMobile()) {
       this.widthStyle = "90%"
     }
