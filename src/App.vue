@@ -90,8 +90,9 @@ export default {
       appTitle: 'Odysseia',
       closeOnClick: true,
       footerItems: [
-        {icon:'mdi-github', path: 'https://github.com/joerivrij/odysseia'},
-        {icon: 'mdi-linkedin', path: 'https://nl.linkedin.com/in/joeri-vrijaldenhoven-22713a80'}
+        {icon:'mdi-github', path: 'https://github.com/odysseia-greek'},
+        {icon: 'mdi-linkedin', path: 'https://nl.linkedin.com/in/joeri-vrijaldenhoven-22713a80'},
+        {icon: 'mdi-book-open-outline', path: '/ploutarchos/'}
   ],
       menuItems: [
         { title: 'Home', path: '/', icon: 'mdi-home-variant' },
