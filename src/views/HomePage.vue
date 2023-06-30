@@ -28,17 +28,17 @@
       >
         <v-card-text
             :style="paddingStyle">
-          <p class="text-h5 text--primary">
+          <p class="text-h3 text--primary" style="margin-top:1em">
             Odysseia is an app to help you learn and interact with Ancient (Attic) Greek
           </p>
-          <div class="text--primary">
+          <div class="text-h5 text--primary">
             When learning Ancient Greek there are a lot of resources you can (and should) use.
             This app in no way wants to replace anything that exists out there.
             It's main goal has always been to make a fun and educational tool to be used.<br>
             Each component listed below has a HOWTO in the top for when you need help interacting with the app.
           </div>
           <br>
-          <div class="text--primary">
+          <div class="text-h6 text--primary" style="margin-bottom:2em">
             Any mistakes either in translation or content are mine, please feel free to reach out to me if you have any suggestions.
           </div>
         </v-card-text>
@@ -56,6 +56,7 @@
             <v-card
                 :color="card.color"
                 height="100%">
+              <a :href="card.link">
               <v-img
                   :src="card.src"
                   class="white--text align-end"
@@ -64,6 +65,7 @@
               >
                 <v-card-title v-text="card.title"></v-card-title>
               </v-img>
+              </a>
               <v-card-subtitle class="pb-0">
                 {{card.subTitle}}
               </v-card-subtitle>
