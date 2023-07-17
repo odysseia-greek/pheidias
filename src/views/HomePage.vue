@@ -4,8 +4,8 @@
       <v-parallax
           class=".v-parallax__image-container"
           dark
-          height="900"
-          :src="schoolOfAthens"
+          height=900
+          :src="odysseus"
       >
         <v-row
             align="center"
@@ -26,19 +26,18 @@
           width="100%"
           color="triadic"
       >
-        <v-card-text
-            :style="paddingStyle">
+        <v-card-text :style="paddingStyle">
           <p class="text-h3 text--primary" style="margin-top:1em">
             Odysseia is an app to help you learn and interact with Ancient (Attic) Greek
           </p>
-          <div class="text-h5 text--primary">
+          <div :class="$vuetify.theme.textsecondary + ' text-h5'">
             When learning Ancient Greek there are a lot of resources you can (and should) use.
             This app in no way wants to replace anything that exists out there.
-            It's main goal has always been to make a fun and educational tool to be used.<br>
+            Its main goal has always been to make a fun and educational tool to be used.<br>
             Each component listed below has a HOWTO in the top for when you need help interacting with the app.
           </div>
           <br>
-          <div class="text-h6 text--primary" style="margin-bottom:2em">
+          <div :class="$vuetify.theme.textsecondary + ' text-h6'" style="margin-bottom:2em">
             Any mistakes either in translation or content are mine, please feel free to reach out to me if you have any suggestions.
           </div>
         </v-card-text>
@@ -105,7 +104,7 @@ export default {
     return {
       flex: 6,
       paddingStyle: "padding: 5em 22em;",
-      schoolOfAthens: require('@/assets/school_of_athens.jpg'),
+      odysseus: require('@/assets/odysseus.jpg'),
       cards: [
       {
         "title": "Dictionary",
@@ -161,13 +160,15 @@ export default {
   },
   methods: {
     isMobile() {
-      return screen.width <= 800;
-    }
+      return screen.width <= 900;
+    },
   },
   created() {
     if (this.isMobile()) {
       this.flex = 12;
       this.paddingStyle = "padding: 1em 2em;"
+      this.odysseus = require('@/assets/mobile_odysseus.jpg')
+
     }
     else {
       this.flex = 6;
@@ -176,8 +177,14 @@ export default {
 }
 </script>
 
-<style scoped>
+<style>
 .v-parallax__image-container {
-  opacity: 0.1;
+  opacity: 0.8;
 }
+
+#homepage h1.text-lg-h1 {
+  color: rgb(248,248,248) !important;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
 </style>

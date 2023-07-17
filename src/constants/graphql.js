@@ -94,8 +94,8 @@ query grammar($word: String!) {
 }`
 
 export const DictionaryEntry = gql`
-    query dictionary($word: String!) {
-        dictionary(word: $word) {
+    query dictionary($word: String!, $language: String!, $exactMatch: Boolean!) {
+        dictionary(word: $word, language: $language, exactMatch: $exactMatch) {
             greek
             english
             dutch

@@ -1,26 +1,64 @@
 <template>
   <div id="dictionary">
-    <v-app
-        id="dictionaryarea"
-        :style="{background: $vuetify.theme.themes[theme].background}"
-    >
+    <v-app id="dictionaryarea" :style="{ background: $vuetify.theme.themes[theme].background }">
       <br>
-      <v-card
-          class="mx-auto"
-          color="primary"
-          dark
-          width="100em"
-      >
+      <v-card class="mx-auto" color="primary" dark width="100em">
         <v-card-text>
-          Explore hundreds of words available on the database for more
-          information see
-          <a
-              class="grey--text text--lighten-3"
-              href="https://github.com/odysseia-greek/ionia/tree/master/demokritos/lexiko"
-              target="_blank"
-          >the GitHub repository</a
-          >
+          Dictionary provides words in Ancient Greek, English and Dutch. See
+          <a class="grey--text text--lighten-3" href="https://github.com/odysseia-greek/ionia/tree/master/demokritos/lexiko" target="_blank">the GitHub repository</a>
+          for examples.
+          <v-btn icon @click="infoDialogVisible = true" class="mx-4">
+            <v-icon>mdi-information</v-icon>
+          </v-btn>
         </v-card-text>
+        <v-snackbar
+            v-model="errorSnackbar.show"
+            :timeout="1000"
+            color="error"
+        >
+          {{ errorSnackbar.message }}
+          <v-btn
+              color="white"
+              text
+              @click="errorSnackbar.show = false"
+          >
+            Close
+          </v-btn>
+        </v-snackbar>
+        <v-dialog v-model="infoDialogVisible" max-width="500">
+          <v-card>
+            <v-card-title class="headline">Dictionary</v-card-title>
+            <v-card-text>
+              <p>This section provides information about the different components:</p>
+              <ul>
+                <li>
+                  <strong>Selected Language:</strong> Allows you to choose the language.
+                </li>
+                <li>
+                  <strong>Exact Match:</strong> Enables exact search matching. Otherwise, fuzzy searching is performed. Fuzzy search examples: "ouse" matches "house," "mouse," and "trousers." Exact match example: "house" matches only "house."
+                </li>
+                <li>
+                  <strong>Search Input:</strong> Enter the word you are looking for. The search will happen as you type. A minimum of 2 characters need to be typed before any results appear. Here are some "fuzzy" examples: όφο, δοτος, Ἀθῆ
+                </li>
+                <li>
+                  <strong>Results Table:</strong> Displays the search results in the language of your choosing.
+                </li>
+              </ul>
+
+            </v-card-text>
+            <v-card-actions>
+              <v-btn color="primary" text @click="infoDialogVisible = false">Close</v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+        <v-radio-group v-model="selectedLanguage"class="mx-4">
+          <v-radio color="secondary" label="Greek (default)" value="greek"></v-radio>
+          <v-radio color="secondary" label="English" value="english"></v-radio>
+          <v-radio color="secondary" label="Nederlands" value="dutch"></v-radio>
+        </v-radio-group>
+
+        <v-switch v-model="exactMatch" :label="switchLabel" color="secondary" class="mx-4"></v-switch>
+
         <v-card-text>
           <v-autocomplete
               :loading="loading"
@@ -29,14 +67,16 @@
               color="white"
               item-text="Description"
               item-value="API"
-              label="What Greek word are you looking for?"
-              placeholder="Start typing to Search"
-              prepend-icon="mdi-database-search"
+              label="Enter a word to search"
+              placeholder="Start typing..."
+              prepend-icon="mdi-magnify"
               auto-select-first
               return-object
           ></v-autocomplete>
         </v-card-text>
+
         <v-divider></v-divider>
+
         <v-expand-transition>
           <v-card light color="background">
             <v-card-text>
@@ -58,6 +98,7 @@
   </div>
 </template>
 
+
 <script>
 import {DictionaryEntry} from "@/constants/graphql";
 
@@ -66,10 +107,15 @@ export default {
   computed: {
     theme(){
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
-    }
+    },
+    switchLabel() {
+      return this.exactMatch ? 'Exact Match' : 'Fuzzy Search';
+    },
   },
   data() {
     return {
+      selectedLanguage: 'greek',
+      exactMatch: false,
       headers: [
         {
           text: 'Greek',
@@ -80,38 +126,81 @@ export default {
         { text: 'English', value: 'english' }
       ],
       searchResults: [],
-      errors: [],
+      errorSnackbar: {
+        show: false,
+        message: ''
+      },
       loading: false,
-      search: null,
+      search: '',
       select: null,
+      infoDialogVisible: false,
     }
   },
   methods: {
-    submitSearch: function (value) {
-      this.loading = true
-      this.searchResults = []
-      this.$apollo.query({
-        query: DictionaryEntry,
-        variables: {
-          word: value,
-        },
-        fetchPolicy: "no-cache",
-      }).then((response) => {
-        this.searchResults = response.data.dictionary
-        setTimeout(() => {
-          this.loading = false
-        }, 1500)
-      })
-      .catch(e => {
-        setTimeout(() => {
-          this.loading = false
-        }, 1500)
-      })
+    clearSearch() {
+      this.search = '';
+    },
+    submitSearch(value) {
+      this.loading = true;
+      this.searchResults = [];
+      this.$apollo
+          .query({
+            query: DictionaryEntry,
+            variables: {
+              word: value,
+              language: this.selectedLanguage.toLowerCase(),
+              exactMatch: this.exactMatch,
+            },
+            fetchPolicy: 'no-cache',
+          })
+          .then((response) => {
+            const hits = response.data.dictionary;
+            this.searchResults = hits.map((hit) => ({
+              greek: hit.greek,
+              english: hit.english,
+              dutch: hit.dutch,
+              // Add more properties as needed
+            }));
+            setTimeout(() => {
+              this.loading = false;
+            }, 1500);
+          })
+          .catch(() => {
+            this.errorSnackbar.message = 'No results. Please try another word.';
+            this.errorSnackbar.show = true;
+            setTimeout(() => {
+              this.loading = false;
+            }, 1500);
+          });
+    },
+    updateTableData() {
+      if (this.selectedLanguage === 'dutch') {
+        this.headers = [
+          // Dutch headers
+          { text: 'Grieks', align: 'start', sortable: true, value: 'greek' },
+          { text: 'Nederlands', value: 'dutch' },
+          // Add more headers if needed
+        ];
+      } else {
+        // Reset to English headers and search results
+        this.headers = [
+          {
+            text: 'Greek',
+            align: 'start',
+            sortable: true,
+            value: 'greek',
+          },
+          { text: 'English', value: 'english' }
+        ];
+      }
     },
   },
   watch: {
     search (val) {
       val && val !== this.select && this.submitSearch(val)
+    },
+    selectedLanguage() {
+      this.updateTableData();
     },
   },
 }
