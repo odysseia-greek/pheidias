@@ -35,7 +35,7 @@
                   <strong>Selected Language:</strong> Allows you to choose the language.
                 </li>
                 <li>
-                  <strong>Exact Match:</strong> Enables exact search matching. Otherwise, fuzzy searching is performed. Fuzzy search examples: "ouse" matches "house," "mouse," and "trousers." Exact match example: "house" matches only "house."
+                  <strong>Search Mode:</strong> The mode you want to use for searching. Fuzzy search examples: "ouse" matches "house," "mouse," and "trousers." Exact match example: "house" matches only "house." Phrase will see if the word is part of an entry example: "house" matches "household" and "build a house"
                 </li>
                 <li>
                   <strong>Search Input:</strong> Enter the word you are looking for. The search will happen as you type. A minimum of 2 characters need to be typed before any results appear. Here are some "fuzzy" examples: όφο, δοτος, Ἀθῆ
@@ -51,13 +51,19 @@
             </v-card-actions>
           </v-card>
         </v-dialog>
+        <h3 class="mx-4">Language</h3>
         <v-radio-group v-model="selectedLanguage"class="mx-4">
           <v-radio color="secondary" label="Greek (default)" value="greek"></v-radio>
           <v-radio color="secondary" label="English" value="english"></v-radio>
           <v-radio color="secondary" label="Nederlands" value="dutch"></v-radio>
         </v-radio-group>
 
-        <v-switch v-model="exactMatch" :label="switchLabel" color="secondary" class="mx-4"></v-switch>
+        <h3 class="mx-4">Search Mode</h3>
+        <v-radio-group v-model="mode"class="mx-4">
+          <v-radio color="secondary" label="Fuzzy (default)" value="fuzzy"></v-radio>
+          <v-radio color="secondary" label="Exact" value="exact"></v-radio>
+          <v-radio color="secondary" label="Phrase" value="phrase"></v-radio>
+        </v-radio-group>
 
         <v-card-text>
           <v-autocomplete
@@ -108,14 +114,11 @@ export default {
     theme(){
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
     },
-    switchLabel() {
-      return this.exactMatch ? 'Exact Match' : 'Fuzzy Search';
-    },
   },
   data() {
     return {
       selectedLanguage: 'greek',
-      exactMatch: false,
+      mode: 'fuzzy',
       headers: [
         {
           text: 'Greek',
@@ -137,9 +140,6 @@ export default {
     }
   },
   methods: {
-    clearSearch() {
-      this.search = '';
-    },
     submitSearch(value) {
       this.loading = true;
       this.searchResults = [];
@@ -149,7 +149,7 @@ export default {
             variables: {
               word: value,
               language: this.selectedLanguage.toLowerCase(),
-              exactMatch: this.exactMatch,
+              mode: this.mode,
             },
             fetchPolicy: 'no-cache',
           })
