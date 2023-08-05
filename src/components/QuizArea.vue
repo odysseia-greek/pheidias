@@ -169,7 +169,7 @@
 
           <br />
           <br />
-            <v-container v-if="category.length" ref="chapter">
+            <v-container v-if="this.selectedCategory.length" ref="chapter">
               <v-row justify="center" align="center">
                 <v-col
                     cols="12"
