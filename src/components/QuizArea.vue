@@ -137,13 +137,12 @@
               <v-spacer></v-spacer>
 
             </v-toolbar>
-
             <v-list>
               <v-list-group
                   v-for="item in methods"
-                  @click="selectedMethod = item.name;"
+                  @click="selectedMethod = item.name; selectedCategory = '';"
                   :key="item.name"
-                  v-model="item.active"
+                  v-model="selectedMethodCategories[item.name]"
                   :prepend-icon="item.action"
                   no-action
               >
@@ -156,8 +155,8 @@
                 <v-list-item
                     v-for="child in item.categories"
                     :key="child.name"
-                    @click="category=child.name;setChapter(1)"
-                    v-on:click="getChapters(child.name, item.name);scrollMeTo('chapter');item.active=false"
+                    @click="selectedCategory = child.name; setChapter(1);"
+                    v-on:click="getChapters(child.name, item.name); scrollMeTo('chapter'); selectedMethodCategories[item.name] = false;"
                 >
                   <v-list-item-content>
                     <v-list-item-title v-text="child.name"></v-list-item-title>
@@ -165,6 +164,7 @@
                 </v-list-item>
               </v-list-group>
             </v-list>
+
           </v-card>
 
           <br />
@@ -199,7 +199,7 @@
           <br>
 
           <div ref="quiz" v-if="quizWord.length">
-          <h2>Method: {{this.selectedMethod}} - Category: {{ this.category}} - Chapter {{this.selectedChapter}}</h2>
+          <h2>Method: {{this.selectedMethod}} - Category: {{ this.selectedCategory}} - Chapter {{this.selectedChapter}}</h2>
           <h3>Translate:</h3>
           <h3>{{quizWord}}</h3>
           <br />
@@ -373,6 +373,8 @@ export default {
       ],
       closeOnContentClick: true,
       selectedChapter : 1,
+      selectedCategory: "",
+      selectedMethodCategories: {},
       categories: [],
       methods: [],
       value: 0,
@@ -392,13 +394,13 @@ export default {
   apollo: {
     methods: {
       query: SokratesTreeQuery,
-      result({data, loading, networkStatus}) {
-        this.selectedMethod = data.methods[0].name
-      },
       pollInterval: 5 * 60 * 1000, // refresh data every 5 min
     },
   },
   methods: {
+    updateURLParams() {
+      this.$router.push({ path: '/quiz', query: {method: this.selectedMethod, category: this.selectedCategory, chapter: this.selectedChapter } });
+    },
     showLoader () {
       this.value = 0
 
@@ -428,7 +430,7 @@ export default {
       this.$apollo.query({
           query: SokratesCreateQuestion,
           variables: {
-            category: this.category,
+            category: this.selectedCategory,
             chapter: this.selectedChapter,
             method: this.selectedMethod,
           },
@@ -468,7 +470,7 @@ export default {
           color: color,
           answer: this.correctAnswer,
           input: selectedAnswer,
-          category: this.category,
+          category: this.selectedCategory,
           method: this.selectedMethod,
         }
 
@@ -544,9 +546,40 @@ export default {
     else {
       this.flex = 6;
     }
+    if (this.$route.query.method && this.$route.query.category && this.$route.query.chapter) {
+      this.selectedMethod = this.$route.query.method;
+      this.selectedCategory = this.$route.query.category;
+      this.selectedChapter = parseInt(this.$route.query.chapter);
+      // Call the method to get the chapters for the selected category and method
+      this.getChapters(this.selectedCategory, this.selectedMethod);
+    } else {
+      // Set default values here if query parameters are not present
+      // For example:
+      this.selectedMethod = ""; // Set your default method
+      this.selectedCategory = ""; // Set your default category
+      this.selectedChapter = 1; // Set your default chapter
+    }
   },
   beforeDestroy () {
     clearInterval(this.interval)
+  },
+  watch: {
+    // Watch for changes in selectedChapter property
+    selectedChapter() {
+      this.updateURLParams()
+      this.getQuestion()
+    },
+
+    // Watch for changes in categories array
+    selectedCategory() {
+      this.updateURLParams()
+      this.getQuestion()
+    },
+
+    selectedMethod() {
+      this.updateURLParams()
+      this.getQuestion()
+    },
   },
 
 }

@@ -328,21 +328,25 @@ export default {
       query: HerodotosTreeQuery,
       result({data, loading, networkStatus}) {
         const nameCapitalized = data.authors[0].name.charAt(0).toUpperCase() + data.authors[0].name.slice(1)
-        this.selectedAuthor = nameCapitalized
+        // this.selectedAuthor = nameCapitalized
         {
           const nameCapitalized = data.authors[0].name.charAt(0).toUpperCase() + data.authors[0].name.slice(1)
-          this.selectedAuthor = nameCapitalized
+          // this.selectedAuthor = nameCapitalized
           const innerBooks = []
           data.authors[0].books.forEach(function (book) {
             innerBooks.push(book.book)
           })
           this.books = innerBooks
-          this.setBookTo(innerBooks[0])
+          // this.setBookTo(innerBooks[0])
         }
       }
     },
 },
   methods: {
+    updateURLParams() {
+      const { selectedAuthor, selectedBook } = this;
+      this.$router.push({ path: '/texts', query: { author: selectedAuthor, book: selectedBook } });
+    },
     setAuthorTo(author) {
       const nameCapitalized = author.charAt(0).toUpperCase() + author.slice(1)
       this.selectedAuthor = nameCapitalized
@@ -474,6 +478,24 @@ export default {
   mounted() {
   },
   created() {
+    this.selectedAuthor = this.$route.query.author || "";
+    this.selectedBook = this.$route.query.book || "";
+
+    if (this.selectedAuthor) {
+      this.selectedAuthor = this.selectedAuthor.charAt(0).toUpperCase() + this.selectedAuthor.slice(1);
+    }
+  },
+  watch: {
+    // Watch for changes in selectedAuthor and selectedBook properties
+    selectedAuthor() {
+      // Update the URL query parameter when the selectedAuthor changes
+      this.updateURLParams();
+      this.getNewSentence();
+    },
+    selectedBook() {
+      this.updateURLParams();
+      this.getNewSentence();
+    }
   },
 }
 </script>
