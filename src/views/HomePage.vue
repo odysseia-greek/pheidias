@@ -1,6 +1,10 @@
 <template>
   <div id="app">
     <v-app id="homepage">
+      <v-container
+          background="primary"
+          style="max-width: 100%"
+          >
       <v-parallax
           class=".v-parallax__image-container"
           dark
@@ -16,36 +20,45 @@
               cols="12"
           >
             <h1 class="text-lg-h1 text--primary">
-              Welcome to Odysseia!
+              Welcome to your Odysseia!
             </h1>
           </v-col>
         </v-row>
       </v-parallax>
+      <v-container
+          fluid
+          style="max-width: 1400px"
+      >
       <v-card
           class="text-center"
-          width="100%"
           color="triadic"
+          style="margin-bottom: 1em"
       >
-        <v-card-text :style="paddingStyle">
-          <p class="text-h3 text--primary" style="margin-top:1em">
-            Odysseia is an app to help you learn and interact with Ancient (Attic) Greek
+        <v-card-text>
+          <p class="text-h4 text--primary my-text-block" style="margin-top:1em">
+            odysseia-greek is an app to help you learn and interact with Ancient (Attic) Greek
           </p>
-          <div :class="$vuetify.theme.textsecondary + ' text-h5'">
+          <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'">
             When learning Ancient Greek there are a lot of resources you can (and should) use.
             This app in no way wants to replace anything that exists out there.
             Its main goal has always been to make a fun and educational tool to be used.<br>
+            Any mistakes either in translation or content are mine, please feel free to reach out to me if you have any suggestions. <br>
             Each component listed below has a HOWTO in the top for when you need help interacting with the app.
           </div>
-          <br>
-          <div :class="$vuetify.theme.textsecondary + ' text-h6'" style="margin-bottom:2em">
-            Any mistakes either in translation or content are mine, please feel free to reach out to me if you have any suggestions.
+          <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'">
+           <strong>Don't know where to start? Click the button below.</strong>
           </div>
+
+          <v-btn
+              :to="'/quiz'"
+              color="primary"
+              class="mx-auto my-text-block"
+              large
+          >
+            Start With a Quiz
+          </v-btn>
         </v-card-text>
-        </v-card>
-      <v-container
-          fluid
-          background="background"
-      >
+      </v-card>
         <v-row dense>
           <v-col
               v-for="card in cards"
@@ -93,6 +106,7 @@
           </v-col>
         </v-row>
       </v-container>
+      </v-container>
     </v-app>
   </div>
 </template>
@@ -103,25 +117,36 @@ export default {
   data () {
     return {
       flex: 6,
-      paddingStyle: "padding: 5em 22em;",
-      odysseus: require('@/assets/odysseus.jpg'),
+      odysseus: require('@/assets/odysseus.webp'),
       cards: [
+        {
+          "title": "Quiz",
+          "color": "triadic",
+          "src": require('@/assets/school_of_athens.webp'),
+          "link": "/quiz",
+          "subTitle": "Sokrates",
+          "quote": "ἓν οἶδα ὅτι οὐδὲν οἶδα - I know one thing that I know nothing",
+          "shortText": "Imagine standing in the Athenian Agora, just selling your wares. " +
+              "A man, an ugly man at that, walks up and strikes up a conversation. " +
+              "Before you know it you need to answer questions about morality and how you know you are correct.",
+          "longText": "That insisted questioning is why Sokrates is the name given to the Quiz section, it is a place to practise multiple choice word options taken from famous Greek works. Image based quizzes or even dialogue! It's the best place to start if you are new.",
+        },
       {
         "title": "Dictionary",
         "color": "triadic",
-        "src": require('@/assets/alexander.jpeg'),
+        "src": require('@/assets/alexander.webp'),
         "link": "/dictionary",
         "subTitle": "Alexandros",
         "quote": "Ου κλέπτω την νίκην - I will not steal my victory",
         "shortText": "The end of the earth was still not enough in his search and quest for glory. Few people loom as large as Alexander the Great in world history.",
         "longText": "His name is therefor linked to the dictionary component of Odysseia which is pretty self explanatory. " +
             "You can search for (partial) words here. Each keystroke will send a query to the backend and accents are ignored for easy searching. " +
-            "Currently only Greek-English is supported but more is one the way!",
+            "Support English, Ancient Greek or Dutch (Nederlands) as search parameters.",
       },
       {
         "title": "Grammar",
         "color": "triadic",
-        "src": require('@/assets/grammar.jpeg'),
+        "src": require('@/assets/grammar.webp'),
         "link": "/grammar",
         "subTitle": "Dionysios",
         "quote": "Γραμματική ἐστιν ἐμπειρία τῶν παρὰ ποιηταῖς τε καὶ συγγραφεῦσιν ὡς ἐπὶ τὸ πολὺ λεγομένων - Grammar is an experimental knowledge of the usages of language as generally current among poets and prose writers",
@@ -133,7 +158,7 @@ export default {
       {
         "title": "Texts",
         "color": "triadic",
-        "src": require('@/assets/alexandria.jpeg'),
+        "src": require('@/assets/alexandria.webp'),
         "link": "/texts",
         "subTitle": "Herodotos",
         "quote": "Ἡροδότου Ἁλικαρνησσέος ἱστορίης ἀπόδεξις ἥδε - This is the display of the inquiry of Herodotos of Halikarnassos",
@@ -141,18 +166,6 @@ export default {
         "longText": "What can be said with certainty is that his influence over Ancient Greek is vast. He is part of most textbooks that help students take their first steps into Ancient Greek. " +
             "In the Herodotos or Text section of Odysseia you can translate texts. " +
             "It will calculate how accurate your translation is compared to an official translation.",
-      },
-      {
-        "title": "Quiz",
-        "color": "triadic",
-        "src": require('@/assets/school_of_athens.jpg'),
-        "link": "/quiz",
-        "subTitle": "Sokrates",
-        "quote": "ἓν οἶδα ὅτι οὐδὲν οἶδα - I know one thing that I know nothing",
-        "shortText": "Imagine standing in the Athenian Agora, just selling your wares. " +
-            "A man, an ugly man at that, walks up and strikes up a conversation. " +
-            "Before you know it you need to answer questions about morality and how you know you are correct.",
-        "longText": "That insisted questioning is why Sokrates is the name given to the Quiz section, it is a place to practise multiple choice word options taken from famous Greek works.",
       },
     ],
 
@@ -166,8 +179,7 @@ export default {
   created() {
     if (this.isMobile()) {
       this.flex = 12;
-      this.paddingStyle = "padding: 1em 2em;"
-      this.odysseus = require('@/assets/mobile_odysseus.jpg')
+      this.odysseus = require('@/assets/mobile_odysseus.webp')
 
     }
     else {
@@ -180,6 +192,22 @@ export default {
 <style>
 .v-parallax__image-container {
   opacity: 0.8;
+}
+
+.my-card {
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.my-text-block {
+  margin-bottom: 1em; /* Adjust this value as needed */
+}
+
+@media only screen and (max-width: 820px) {
+  .my-card {
+    width: 100%;
+  }
 }
 
 #homepage h1.text-lg-h1 {

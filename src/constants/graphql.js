@@ -49,39 +49,91 @@ query text($author: String!, $sentenceId: String!, $answer: String!) {
     }
 }`
 
-
-export const SokratesTreeQuery = gql`
-    query methods {
-      methods {
-        name 
-        categories {
+export const SokratesOptions = gql`
+    query options($quizType: String!) {
+      options(quizType: $quizType)  {
+        aggregates{
             name
-            highestChapter
-        } 
+            highestSet
+        }
     }
 }`
-
 export const SokratesCreateQuestion = gql`
-    query quiz($category: String!, $chapter: String!, $method: String!) {
-      quiz(category: $category, chapter: $chapter, method: $method)  {
-          question
-          quiz
-          answer
-    }
-}`
-
-export const SokratesCheckAnswer = gql`
-    query answer($quizWord: String!, $answerProvided: String!) {
-        answer(quizWord: $quizWord, answerProvided: $answerProvided) {
-            correct
-            quizWord
-            possibilities{
-                greek
-                category
-                translation
+    query quiz($set: String!, $quizType: String!, $theme: String!) {
+      quiz(set: $set, quizType: $quizType, theme: $theme)  {
+        ... on QuizResponse {
+            quizItem
+            options{
+                option
+                imageUrl
             }
         }
+        ... on DialogueQuiz {
+            quizType
+            dialogue{
+                introduction
+                speakers {
+                    shorthand
+                    translation
+                }
+            }
+            content{
+                translation
+                greek
+                place
+                speaker
+            }
+        }
+    }
 }`
+
+export const SokratesCheckBase = gql`
+    query answer($set: String!, $quizType: String!, $theme: String!, $quizWord: String!, $answer: String!, $comprehensive: Boolean!) {
+      answer(set: $set, quizType: $quizType, theme: $theme, quizWord: $quizWord, answer: $answer, comprehensive: $comprehensive)  {
+        ... on ComprehensiveResponse {
+            correct
+            quizWord
+            similarWords {
+                greek
+                english
+            }
+            foundInText {
+                rhemai {
+                    author
+                    greek
+                    translations
+                }
+            }
+            progress {
+                averageAccuracy
+                timesCorrect
+                timesIncorrect
+            }
+        }
+    }
+}`
+
+export const SokratesCheckDialogue = gql`
+  query answer($set: String!, $quizType: String!, $theme: String!, $dialogue: [DialogueInput!]!) {
+    answer(set: $set, quizType: $quizType, theme: $theme, dialogue: $dialogue) {
+      ... on DialogueAnswer {
+        percentage
+        input {
+            place
+        }
+        answer {
+            place
+        }
+        wronglyPlaced {
+          greek
+          translation
+          speaker
+          place
+        }
+      }
+    }
+  }
+`;
 
 export const CheckGrammar = gql`
 query grammar($word: String!) {
