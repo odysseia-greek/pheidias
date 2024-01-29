@@ -6,13 +6,13 @@
     >
       <v-main>
         <div class="text-center">
-          <div style="margin-bottom:2em;">
+          <div  v-if="showAllOptions" style="margin-bottom:2em;">
             <v-btn
                 class="ma-4"
                 color="primary"
                 v-on:click="displayInfo=!displayInfo;stepper=1"
             >
-              Howto
+              How To
               <v-icon
                   right
               >
@@ -25,92 +25,130 @@
                     :complete="stepper > 1"
                     step="1"
                 >
-                  Select Method and Category
+                  Select Quiz Type
                 </v-stepper-step>
-
                 <v-divider></v-divider>
-
                 <v-stepper-step
                     :complete="stepper > 2"
                     step="2"
                 >
-                  Select Chapter
+                  Select Theme
                 </v-stepper-step>
-
                 <v-divider></v-divider>
-
-                <v-stepper-step step="3">
-                  Answer Questions
+                <v-stepper-step
+                    :complete="stepper > 3"
+                    step="3"
+                >
+                  Select Set
+                </v-stepper-step>
+                <v-divider></v-divider>
+                <v-stepper-step step="4">
+                  Other Options
                 </v-stepper-step>
               </v-stepper-header>
-
               <v-stepper-items>
                 <v-stepper-content step="1">
-                  <v-card
-                      class="mb-12"
-                      color="white"
-                      height="14em"
-                  >Press one of the buttons below "Methods". The categories for that Method can then be selected.
-                  <br>
-                    Some of these are based on books (such as Aristophanes -> frogs) and others on more general terms.
+                  <v-card class="mb-12 text-left" color="white">
+                    First select the quiz type you want to be play <strong>this page looks best on a tablet resolution (820px).</strong>
                     <br>
-                    MOUSEION is Dutch only.
+                    <br>
+                    <ul>
+                      <li>
+                        <strong>Author:</strong> multiple choice questions taken from great works of literature.
+                      </li>
+                      <li>
+                        <strong>Dialogue:</strong> converse in Ancient Greek with Ancient Greeks! This mode allows you to recreate dialogue taken from great works
+                        of literature. You are asked to put the conversation in the right order.
+                      </li>
+                      <li>
+                        <strong>Media:</strong> this quiz type has images and (in the future) audio for you to have an interactive experience.
+                      </li>
+                    </ul>
+                    <br>
                   </v-card>
-
                   <v-btn
                       color="primary"
                       @click="stepper = 2"
                   >
                     Next Step
                   </v-btn>
-
                   <v-btn
                       text
                       v-on:click="displayInfo=!displayInfo">
                     Close
                   </v-btn>
                 </v-stepper-content>
-
                 <v-stepper-content step="2">
-                  <v-card
-                      class="mb-12"
-                      color="white"
-                      height="14em"
-                  >Chapters can be chosen by typing and pressing SET CHAPTER.
+                  <v-card class="mb-12 text-left" color="white">
+                    Themes can be chosen in dialogue and author mode. Each theme represents a work from antiquity.
                     <br>
-                    Between brackets (for example: Chapters (1 -93)) are the available chapters
-                  <br>
-                  You can only set a chapter after you have chosen a method and catergory. Each chapter is 10 words at this time.</v-card>
-
-
+                    <br>
+                    For example: <strong>Aeschylus - Agamemnon</strong> or <strong>Homer - Odyssey</strong>.
+                    Dialogue or multiple choice will be taken from these works.
+                    <br>
+                    <br>
+                    Since the quiz words are the words that appear the most in certain text there will always be quite some overlap between the different themes.
+                  </v-card>
                   <v-btn
                       color="primary"
                       @click="stepper = 3"
                   >
                     Next Step
                   </v-btn>
-
                   <v-btn
                       text
                       v-on:click="displayInfo=!displayInfo">
                     Close
                   </v-btn>
                 </v-stepper-content>
-
                 <v-stepper-content step="3">
-                  <v-card
-                      class="mb-12"
-                      color="white"
-                      height="14em"
-                  >After having set a Method with a Category and a chapter (default is 1) you can start testing your knowledge.
+                  <v-card class="mb-12 text-left" color="white">
+                    A set is a number of quiz items within a quiz. Each set consists of <strong>20</strong> words that will randomly be presented as a quiz.
                     <br>
-                    For example:
                     <br>
-                    Translate:
-                    ἀλλά
+                    Some sets might be a bit smaller or larger than 20 because the total number of quizwords is larger than x * 20.
                     <br>
-                    Choose one of the options below and click the right answer. You will be shown whether you are right or not!
-                    A graph is displayed just for fun.
+                    <br>
+                    In authormode sets are divided by word size and whenever possible in nouns and verbs.
+                  </v-card>
+                  <v-btn
+                      color="primary"
+                      @click="stepper = 4"
+                  >
+                    Next Step
+                  </v-btn>
+                  <v-btn
+                      text
+                      v-on:click="displayInfo=!displayInfo">
+                    Close
+                  </v-btn>
+                </v-stepper-content>
+                <v-stepper-content step="4">
+                  <v-card class="mb-12 text-left" color="white">
+                    Additional options to turn on and off by pressing the cogwheel on the right
+                    <v-icon>mdi-cog</v-icon>
+                    which will appear after selecting a Quiz Mode.
+                    <br>
+                    <br>
+                    <ul>
+                      <li>
+                        <strong>Show Text With Images:</strong> when using media or image based modes you the images can be appended with an English test.
+                      </li>
+                      <li>
+                        <strong>Extended Mode:</strong> available in image, media and authorbased modes. This will show words that are similar and where in text you can find a word in all it's known declensions.
+                        <br>
+                        The known declensions are based on words found in the grammar component <a href="/grammar">link</a>.
+                      </li>
+                      <li>
+                        <strong>Show Translation:</strong> adds translations in Dialogue mode.
+                      </li>
+                      <li>
+                        <strong>Show History Table:</strong> in non dialogue quiz modes you can see the answers you have given in this history table making it easier to remember previous entries.
+                      </li>
+                      <li>
+                        <strong>Show All Options:</strong> unclutters the screen by removing everything but the Quiz Area itself. Extended mode can still be enabled when all other options are removed.
+                      </li>
+                    </ul>
                   </v-card>
                   <v-btn
                       text
@@ -123,10 +161,9 @@
           </div>
           <br />
           <br>
-
           <v-container class="quiz-container">
             <!-- Quiz Mode Buttons -->
-            <v-row>
+            <v-row v-if="showAllOptions">
               <v-col
                   v-for="(quiz, index) in quizModes"
                   :key="index"
@@ -134,7 +171,8 @@
                   sm="6"
               >
                 <v-btn
-                    class="ma-1"
+                    class="ma-1 quiz-button"
+                    :class="{ 'pulsate': selectedQuizMode === '' }"
                     :color="selectedQuizMode === quiz.value ? 'primary' : 'triadic'"
                     block
                     @click="selectQuiz(quiz.value)"
@@ -146,11 +184,56 @@
                 </v-btn>
               </v-col>
             </v-row>
-
-
+            <div class="settings-icon">
+              <v-menu offset-y v-if="selectedQuizMode !== ''">
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn icon v-bind="attrs" v-on="on" color="footer">
+                    <v-tooltip bottom :disabled="isTouchDevice">
+                      <template v-slot:activator="{ on, attrs }">
+                        <v-icon v-bind="attrs" v-on="on" large>mdi-cog</v-icon>
+                      </template>
+                      <span>Settings</span>
+                    </v-tooltip>
+                  </v-btn>
+                </template>
+                <v-list>
+                  <v-list-item v-if="selectedQuizMode === 'media'">
+                    <v-list-item-content>Show text with images</v-list-item-content>
+                    <v-list-item-action>
+                      <v-switch v-model="showEnglishText"></v-switch>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-list-item v-if="selectedQuizMode === 'media' || selectedQuizMode === 'authorbased'">
+                    <v-list-item-content>Extended Mode</v-list-item-content>
+                    <v-list-item-action>
+                      <v-switch v-model="isComprehensive"></v-switch>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-list-item v-if="selectedQuizMode === 'media' || selectedQuizMode === 'authorbased'">
+                    <v-list-item-content>Show History Table</v-list-item-content>
+                    <v-list-item-action>
+                      <v-switch v-model="showHistoryIndicator"></v-switch>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-list-item v-if="selectedQuizMode === 'dialogue'">
+                    <v-list-item-content>Show Translation</v-list-item-content>
+                    <v-list-item-action>
+                      <v-switch v-model="showDialogueTranslation"></v-switch>
+                    </v-list-item-action>
+                  </v-list-item>
+                  <v-list-item>
+                    <v-list-item-content>Show All Options</v-list-item-content>
+                    <v-list-item-action>
+                      <v-switch v-model="showAllOptions"></v-switch>
+                    </v-list-item-action>
+                  </v-list-item>
+                </v-list>
+              </v-menu>
+            </div>
             <v-combobox
-                v-if="selectedQuizMode !== quizModes[0].value"
+                v-if="selectedQuizMode !== '' && selectedQuizMode !== quizModes[0].value && showAllOptions"
                 class="mt-5"
+                :class="{ 'pulsate': selectedTheme === '' && selectedQuizMode !== 'media' }"
                 v-model="selectedTheme"
                 :items="options"
                 item-text="name"
@@ -159,9 +242,8 @@
                 return-object
                 @change="onThemeSelect"
             ></v-combobox>
-
-
             <v-slider
+                v-if="selectedQuizMode !== '' && selectedQuizMode !== quizModes[2].value && showAllOptions"
                 class="my-5"
                 label="Set"
                 v-model="selectedSet"
@@ -169,14 +251,6 @@
                 :min="1"
                 thumb-label="always"
             ></v-slider>
-
-            <v-switch
-                v-if="selectedQuizMode === 'media'"
-                v-model="showEnglishText"
-                class="my-4"
-                label="Show text with images"
-            ></v-switch>
-
             <v-row v-if="isComprehensive" ref="comprehensive">
               <!-- Similar Words Card -->
               <v-col cols="12" md="6">
@@ -198,7 +272,6 @@
                   </v-card-text>
                 </v-card>
               </v-col>
-
               <!-- Placeholder for Text Items Card -->
               <v-col cols="12" md="6">
                 <v-card :class="{'minimized-text-box': isTextBoxMinimized}" class="pa-3" outlined>
@@ -222,45 +295,25 @@
                   </v-card-text>
                 </v-card>
               </v-col>
-
             </v-row>
-
-            <v-switch
-                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'authorbased'"
-                v-model="isComprehensive"
-                class="my-4"
-                label="Comprehensive Mode"
-            ></v-switch>
-
             <div v-if="isComprehensive">
               <v-btn
                   color="primary"
                   @click="scrollMeTo('quiz')"
+                  style="margin: 4em"
               >
                 To Quiz Area
               </v-btn>
             </div>
-
-            <!-- Create Quiz Button -->
-            <v-btn
-              v-if="selectedSet >= 1"
-              class="my-4"
-              color="primary"
-              @click="getQuestion(); scrollMeTo('quiz');"
-            >
-            Create Quiz
-            </v-btn>
           </v-container>
-
           <div ref="quiz" class="quiz-container">
             <v-container v-if="selectedQuizMode !== 'dialogue' && quizWord">
-            <h3>Translate:</h3>
-            <div class="quiz-word-container">
-              <h2>{{quizWord}}</h2>
-            </div>
+              <h3>Translate:</h3>
+              <div class="quiz-word-container">
+                <h2>{{quizWord}}</h2>
+              </div>
             </v-container>
             <br />
-
             <div v-if="correct && showNextQuestionIndicator" class="text-center mb-4">
               <v-progress-circular
                   indeterminate
@@ -269,14 +322,12 @@
                   size="48"
               ></v-progress-circular>
             </div>
-
             <v-container v-if="selectedQuizMode === 'dialogue'">
               <!-- Introduction -->
               <v-card class="mb-3">
                 <v-card-title>Introduction</v-card-title>
                 <v-card-text>{{ dialogueOptions.introduction }}</v-card-text>
               </v-card>
-
               <!-- Speaker Selection -->
               <v-card class="mb-3">
                 <v-card-title>What role do you want to play?</v-card-title>
@@ -300,14 +351,6 @@
                   </v-row>
                 </v-card-text>
               </v-card>
-
-              <v-switch
-                  v-if="selectedQuizMode === 'dialogue'"
-                  v-model="showDialogueTranslation"
-                  class="my-4"
-                  label="Show Translation"
-              ></v-switch>
-
               <v-card v-if="dialogueText.length > 0">
                 <v-card-title ref="dialogue">Dialogue</v-card-title>
                 <v-card-text>
@@ -323,7 +366,6 @@
                   </div>
                 </v-card-text>
               </v-card>
-
               <v-card v-if="responseOptions.length > 0">
                 <v-card-title>Possible Responses</v-card-title>
                 <v-card-text>
@@ -339,25 +381,20 @@
                   </v-row>
                 </v-card-text>
               </v-card>
-
-            <v-card v-if="responseOptions.length === 0">
-              <v-card-title>Let's see how you did</v-card-title>
-              <v-btn
-                v-if="responseOptions.length === 0 && selectedQuizMode === 'dialogue'"
-                @click="checkDialogueAnswer();"
-                color="primary"
-                class="ma-1"
-                block
-            >Check Dialogue Answer</v-btn>
-
-              <v-card-text>
-                You got: {{ dialoguePercentage}}% correctness
-              </v-card-text>
-            </v-card>
+              <v-card v-if="responseOptions.length === 0">
+                <v-card-title>Let's see how you did</v-card-title>
+                <v-btn
+                    v-if="responseOptions.length === 0 && selectedQuizMode === 'dialogue'"
+                    @click="checkDialogueAnswer();"
+                    color="primary"
+                    class="ma-1"
+                    block
+                >Check Dialogue Answer</v-btn>
+                <v-card-text>
+                  You got: {{ dialoguePercentage}}% correctness
+                </v-card-text>
+              </v-card>
             </v-container>
-
-
-
             <v-container v-if="selectedQuizMode === 'media'">
               <v-row>
                 <v-col v-for="item in answers" :key="item.option" cols="6">
@@ -365,9 +402,9 @@
                       flat
                       @click="checkAnswer(item);"
                       :class="{
-            'card-correct': answerStates[item.option]?.isCorrect,
-            'card-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected
-          }"
+                                        'card-correct': answerStates[item.option]?.isCorrect,
+                                        'card-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected
+                                        }"
                   >
                     <v-img :src="getLocalImagePath(item.imageUrl)" class="mb-2" aspect-ratio="1"></v-img>
                     <v-card-text v-if="showEnglishText" class="text-center">{{ item.option }}</v-card-text>
@@ -375,7 +412,6 @@
                 </v-col>
               </v-row>
             </v-container>
-
             <!-- Text Buttons for Other Quiz Modes -->
             <div v-if="selectedQuizMode === 'authorbased'">
               <v-row>
@@ -383,45 +419,44 @@
                   <v-btn
                       @click="checkAnswer(item);"
                       class="ma-1"
-                  :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }"
-                  :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'"
-                  block
+                      :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }"
+                      :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'"
+                      block
                   >
                     <span>{{ truncateText(item.option) }}</span>
                   </v-btn>
                 </v-col>
               </v-row>
             </div>
-
-          <div>
-            <div style="margin: 5em auto;">
-              <v-data-table
-                  :disable-sort="true"
-                  :headers="headers"
-                  :items="historyTable"
-                  :items-per-page="5"
-                  class="elevation-1"
-              >
-                <template v-slot:item.input="{ item }">
-                  <v-chip
-                      :color="item.color"
-                  >
-                    {{ item.input }}
-                  </v-chip>
-                </template>
-              </v-data-table>
-           </div>
+            <div>
+              <div style="margin: 5em auto;">
+                <v-data-table
+                    v-if="selectedQuizMode !== quizModes[2].value && selectedQuizMode !== '' && showHistoryIndicator && showAllOptions"
+                    :disable-sort="true"
+                    :headers="headers"
+                    :items="historyTable"
+                    :items-per-page="5"
+                    class="elevation-1"
+                >
+                  <template v-slot:item.input="{ item }">
+                    <v-chip
+                        :color="item.color"
+                    >
+                      {{ item.input }}
+                    </v-chip>
+                  </template>
+                </v-data-table>
+              </div>
+            </div>
           </div>
-        </div>
         </div>
       </v-main>
     </v-app>
   </div>
 </template>
 
+
 <script>
-
-
 import {SokratesCheckBase, SokratesCheckDialogue, SokratesCreateQuestion, SokratesOptions} from "@/constants/graphql";
 
 export default {
@@ -433,11 +468,10 @@ export default {
   },
   data() {
     return {
+      isTouchDevice: 'ontouchstart' in window || navigator.maxTouchPoints > 0,
       wronglyPlaced: [],
       dialoguePercentage: 0,
       responseOptions: [],
-      showAnswerDialogueButton: false,
-      currentDialogueIndex: 0,
       dialogueOptions: {},
       dialogueContent: [],
       selectedSpeaker: '',
@@ -448,13 +482,15 @@ export default {
       isComprehensive: false,
       showEnglishText: false,
       showDialogueTranslation: false,
+      showAllOptions: true,
       selectedSet: 1,
-      maxSet: 0,
+      maxSet: 1,
       similarWords: [],
       lastInteractiveWord: "",
       isTextBoxMinimized: false,
       attemptMade: false,
       showNextQuestionIndicator: false,
+      showHistoryIndicator: true,
       rhemai: [],
       quizModes: [
           { text: 'Media', value: 'media', icon: 'mdi-image' },
@@ -467,29 +503,9 @@ export default {
         { text: 'Provided Answer', value: 'input', align: 'center' },
       ],
       historyTable: [],
-      widthStyle : "33%",
-      valid: true,
-      alignments: [
-        'start',
-        'center',
-        'end',
-      ],
-      correctAnswer: "",
       quizWord: '',
       answers: [],
       correct: false,
-      graphNumbers: [0],
-      closeOnContentClick: true,
-      value: 0,
-      interval: 0,
-      width: 2,
-      radius: 10,
-      padding: 8,
-      lineCap: 'round',
-      gradientDirection: 'top',
-      fill: false,
-      type: 'trend',
-      autoLineWidth: false,
       stepper: 1,
       displayInfo: false,
     }
@@ -617,6 +633,7 @@ export default {
       })
     },
     onThemeSelect(item) {
+      this.selectedSet = 1;
       this.selectedSpeaker = ''
       this.responseOptions = []
       this.dialogueText = []
@@ -738,11 +755,8 @@ export default {
           input: selectedAnswer.option,
         };
 
-        this.historyTable.unshift(lastAnswer);ß
+        this.historyTable.unshift(lastAnswer);
       })
-          .catch(e => {
-            this.errors.push(e);
-          });
     },
     truncateText(text) {
       const maxLength = 35;
@@ -896,6 +910,29 @@ h4 {
   color: #666;
   font-style: italic;
   margin-top: 5px;
+}
+
+@keyframes pulse-border {
+  0% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+  }
+}
+
+.pulsate {
+  animation: pulse-border 2s infinite;
+}
+
+.settings-icon {
+  position: fixed; /* or 'absolute' depending on your layout */
+  top: 16px; /* Adjust based on your layout */
+  right: 16px; /* Adjust based on your layout */
+  z-index: 10; /* Ensure it's above other content */
 }
 
 </style>

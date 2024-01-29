@@ -48,6 +48,9 @@
           <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'">
            <strong>Don't know where to start? Click the button below.</strong>
           </div>
+          <div :class="$vuetify.theme.textsecondary + ' text-h6 my-text-block'">
+            <strong>This Site looks best on a tablet resolution (820px).</strong>
+          </div>
 
           <v-btn
               :to="'/quiz'"
