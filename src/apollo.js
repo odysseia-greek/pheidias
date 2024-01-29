@@ -10,12 +10,8 @@ if (process.env.NODE_ENV === 'development') {
     url = "http://localhost:8080/graphql"
 }
 
-if (process.env.NODE_ENV === 'minikube') {
-    url = "http://minikube-odysseia.test/graphql"
-}
-
 if (process.env.NODE_ENV === 'k3s') {
-    url = "http://k3s-odysseia.greek/graphql"
+    url = "http://k3s-odysseia.greek:8080/graphql"
 }
 
 const httpLink = new HttpLink({

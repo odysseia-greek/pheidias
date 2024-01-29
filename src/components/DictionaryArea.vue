@@ -35,10 +35,24 @@
                   <strong>Selected Language:</strong> Allows you to choose the language.
                 </li>
                 <li>
-                  <strong>Search Mode:</strong> The mode you want to use for searching. Fuzzy search examples: "ouse" matches "house," "mouse," and "trousers." Exact match example: "house" matches only "house." Phrase will see if the word is part of an entry example: "house" matches "household" and "build a house"
+                  <strong>Search Mode:</strong> The mode you want to use for searching:<
+                  <ol>
+                    <li>
+                      <strong>Partial</strong> search examples: "ouse" matches "house," "mouse," and "trousers".
+                    </li>
+                    <li>
+                      <strong>Exact</strong> match example: "house" matches only "house".
+                    </li>
+                    <li>
+                      <strong>Extended</strong> will see if the word is part of an entry example: "house" matches "household" and "build a house".
+                    </li>
+                    <li>
+                      <strong>Fuzzy</strong> matches based on levenshtein distance so words that are close are matches "hiuse" matches house.
+                    </li>
+                  </ol>
                 </li>
                 <li>
-                  <strong>Search Input:</strong> Enter the word you are looking for. The search will happen as you type. A minimum of 2 characters need to be typed before any results appear. Here are some "fuzzy" examples: όφο, δοτος, Ἀθῆ
+                  <strong>Search Input:</strong> Enter the word you are looking for. The search will happen as you type. A minimum of 2 characters need to be typed before any results appear. Here are some "Partial" examples: όφο, δοτος, Ἀθῆ. If the searchbox loses focus (this happens when you click outside of it) the text will disappear.
                 </li>
                 <li>
                   <strong>Results Table:</strong> Displays the search results in the language of your choosing.
@@ -60,15 +74,17 @@
 
         <h3 class="mx-4">Search Mode</h3>
         <v-radio-group v-model="mode"class="mx-4">
-          <v-radio color="secondary" label="Fuzzy (default)" value="fuzzy"></v-radio>
+          <v-radio color="secondary" label="Partial (default)" value="partial"></v-radio>
           <v-radio color="secondary" label="Exact" value="exact"></v-radio>
-          <v-radio color="secondary" label="Phrase" value="phrase"></v-radio>
+          <v-radio color="secondary" label="Extended" value="extended"></v-radio>
+          <v-radio color="secondary" label="Fuzzy" value="fuzzy"></v-radio>
         </v-radio-group>
 
         <v-card-text>
           <v-autocomplete
               :loading="loading"
               :search-input.sync="search"
+              :items="searchHistory"
               hide-no-data
               color="white"
               item-text="Description"
@@ -77,7 +93,6 @@
               placeholder="Start typing..."
               prepend-icon="mdi-magnify"
               auto-select-first
-              return-object
           ></v-autocomplete>
         </v-card-text>
 
@@ -118,7 +133,8 @@ export default {
   data() {
     return {
       selectedLanguage: 'greek',
-      mode: 'fuzzy',
+      mode: 'partial',
+      searchHistory: [],
       headers: [
         {
           text: 'Greek',
@@ -135,7 +151,6 @@ export default {
       },
       loading: false,
       search: '',
-      select: null,
       infoDialogVisible: false,
     }
   },
@@ -172,6 +187,23 @@ export default {
               this.loading = false;
             }, 1500);
           });
+
+      this.updateSearchHistory(value);
+    },
+    updateSearchHistory(val) {
+      if (!this.searchHistory.includes(val)) {
+        this.searchHistory.unshift(val);
+
+        if (this.searchHistory.length > 10) {
+          this.searchHistory.pop();
+        }
+      }
+    },
+    handleSelect(item) {
+      if (item && item.term) {
+        this.search = item.term;
+        this.submitSearch(item.term);
+      }
     },
     updateTableData() {
       if (this.selectedLanguage === 'dutch') {
@@ -201,7 +233,11 @@ export default {
     },
     selectedLanguage() {
       this.updateTableData();
+      this.submitSearch(this.searchHistory[0])
     },
+    mode() {
+      this.submitSearch(this.searchHistory[0])
+    }
   },
 }
 </script>

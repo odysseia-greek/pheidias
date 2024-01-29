@@ -3,7 +3,7 @@ import Router from "vue-router";
 
 const routerOptions = [
     { path: "/", view: "HomePage" },
-    { path: "/quiz", view: "Sokrates", query: ["method", "category", "chapter"]},
+    { path: "/quiz", view: "Sokrates"},
     // Add query property to "/texts" route
     {
         path: "/texts",
