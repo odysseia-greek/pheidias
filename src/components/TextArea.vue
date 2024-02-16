@@ -201,7 +201,6 @@
                   Close
                 </v-btn>
               </v-card-actions>
-              </v-card-actions>
             </v-card>
             <div style="margin-bottom:1em; margin-left:1em;">
             <v-switch

@@ -24,9 +24,7 @@
                       width="25em"
                   >
                     <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.path" link>
-                      <v-list-item-icon>
                         <v-icon>{{item.icon}}</v-icon>
-                      </v-list-item-icon>
                       <v-list-item-title>{{item.title}}</v-list-item-title>
                     </v-list-item>
                   </v-list>

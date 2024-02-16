@@ -21,30 +21,30 @@
             </v-btn>
             <v-stepper v-model="stepper" v-if="displayInfo">
               <v-stepper-header>
-                <v-stepper-step
+                <v-stepper-item
                     :complete="stepper > 1"
                     step="1"
                 >
                   Select Quiz Type
-                </v-stepper-step>
+                </v-stepper-item>
                 <v-divider></v-divider>
-                <v-stepper-step
+                <v-stepper-item
                     :complete="stepper > 2"
                     step="2"
                 >
                   Select Theme
-                </v-stepper-step>
+                </v-stepper-item>
                 <v-divider></v-divider>
-                <v-stepper-step
+                <v-stepper-item
                     :complete="stepper > 3"
                     step="3"
                 >
                   Select Set
-                </v-stepper-step>
+                </v-stepper-item>
                 <v-divider></v-divider>
-                <v-stepper-step step="4">
+                <v-stepper-item step="4">
                   Other Options
-                </v-stepper-step>
+                </v-stepper-item>
               </v-stepper-header>
               <v-stepper-items>
                 <v-stepper-content step="1">
@@ -458,6 +458,10 @@
 
 <script>
 import {SokratesCheckBase, SokratesCheckDialogue, SokratesCreateQuestion, SokratesOptions} from "@/constants/graphql";
+import { useQuery } from '@vue/apollo-composable';
+import { provideApolloClient } from '@vue/apollo-composable';
+import apolloClient from '../apollo';
+import { ref, watch } from 'vue';
 
 export default {
   name: "QuizArea",
@@ -465,6 +469,9 @@ export default {
     theme(){
       return (this.$vuetify.theme.dark) ? 'dark' : 'light'
     }
+  },
+  setup() {
+    provideApolloClient(apolloClient);
   },
   data() {
     return {
@@ -613,24 +620,41 @@ export default {
         }, i * typingSpeed);
       }
     },
-    async getOptions(value) {
-      this.$apollo.query({
-        query: SokratesOptions,
-        variables: {
-          quizType: value,
-        },
-        fetchPolicy: "no-cache",
-      }).then(async (response) => {
-        if (value === this.quizModes[0].value) {
-          this.maxSet = parseInt(response.data.options.aggregates[0].highestSet);
-          this.selectedSet = 1;
-          return
-        }
+    getOptions(value) {
+      // Use ref to hold the query result
+      const optionsResult = ref(null);
 
-        this.options = await response.data.options.aggregates.sort((a, b) => {
-          return a.name.localeCompare(b.name);
-        });
-      })
+      // Destructure the result from useQuery
+      const { result, loading, error } = useQuery(SokratesOptions, () => ({
+        quizType: value,
+      }), {
+        fetchPolicy: "no-cache",
+      });
+
+      // Reactive watch on the result
+      watch(result, (newResult, oldResult) => {
+        // This callback will run when the result changes
+        if (newResult) {
+          console.log(newResult)
+          optionsResult.value = newResult;
+          // Now you can work with optionsResult.value which is the actual result of your query
+          if (value === this.quizModes[0].value) {
+            this.maxSet = parseInt(newResult.data.options.aggregates[0].highestSet);
+            this.selectedSet = 1;
+          } else {
+            this.options = newResult.data.options.aggregates.sort((a, b) => {
+              return a.name.localeCompare(b.name);
+            });
+          }
+        }
+      }, {
+        immediate: true, // This ensures the watcher is triggered immediately with the current value
+      });
+
+      // Handle errors if any
+      if (error.value) {
+        console.error("Error fetching options:", error.value);
+      }
     },
     onThemeSelect(item) {
       this.selectedSet = 1;
@@ -654,28 +678,36 @@ export default {
         }
       });
     },
-    async getQuestion () {
+    getQuestion() {
       this.attemptMade = false;
       this.answerStates = {};
-      this.$apollo.query({
-          query: SokratesCreateQuestion,
-          variables: {
-            theme: this.selectedTheme,
-            quizType: this.selectedQuizMode,
-            set: String(this.selectedSet)
-          },
-        fetchPolicy: "no-cache",
-      }).then(async (response) => {
-        if (this.selectedQuizMode !== "dialogue") {
-          this.quizWord = response.data.quiz.quizItem;
-          let slicedArray = response.data.quiz.options.slice(0, 4)
-          this.answers = await this.createNewArray(slicedArray);
-        } else {
-          this.quizWord = "temp"
-          this.dialogueOptions = response.data.quiz.dialogue
-          this.dialogueContent = response.data.quiz.content
-        }
-      })
+
+      // Define a local function that uses the Composition API's useQuery
+      const fetchQuestion = () => {
+        const { result, loading, error } = useQuery(SokratesCreateQuestion, () => ({
+          theme: this.selectedTheme,
+          quizType: this.selectedQuizMode,
+          set: String(this.selectedSet),
+        }), {
+          fetchPolicy: "no-cache",
+        });
+
+        // Watch the query result to process the response
+        result.value.then((response) => {
+          if (this.selectedQuizMode !== "dialogue") {
+            this.quizWord = response.data.quiz.quizItem;
+            let slicedArray = response.data.quiz.options.slice(0, 4);
+            this.answers = this.createNewArray(slicedArray); // Directly call createNewArray without await
+          } else {
+            this.quizWord = "temp";
+            this.dialogueOptions = response.data.quiz.dialogue;
+            this.dialogueContent = response.data.quiz.content;
+          }
+        }).catch((fetchError) => {
+          console.error("Error fetching question:", fetchError);
+        });
+      };
+      fetchQuestion();
     },
     checkDialogueAnswer() {
       const dialogueData = this.dialogueText.map(({ __typename, ...rest }, index) => {

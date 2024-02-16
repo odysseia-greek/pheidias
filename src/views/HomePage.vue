@@ -1,6 +1,5 @@
 <template>
-  <div id="app">
-    <v-app id="homepage">
+  <v-app>
       <v-container
           background="primary"
           style="max-width: 100%"
@@ -110,8 +109,7 @@
         </v-row>
       </v-container>
       </v-container>
-    </v-app>
-  </div>
+  </v-app>
 </template>
 
 <script>
@@ -120,12 +118,12 @@ export default {
   data () {
     return {
       flex: 6,
-      odysseus: require('@/assets/odysseus.webp'),
+      odysseus: import('@/assets/odysseus.webp'),
       cards: [
         {
           "title": "Quiz",
           "color": "triadic",
-          "src": require('@/assets/school_of_athens.webp'),
+          "src": import('@/assets/school_of_athens.webp'),
           "link": "/quiz",
           "subTitle": "Sokrates",
           "quote": "ἓν οἶδα ὅτι οὐδὲν οἶδα - I know one thing that I know nothing",
@@ -137,7 +135,7 @@ export default {
       {
         "title": "Dictionary",
         "color": "triadic",
-        "src": require('@/assets/alexander.webp'),
+        "src": import('@/assets/alexander.webp'),
         "link": "/dictionary",
         "subTitle": "Alexandros",
         "quote": "Ου κλέπτω την νίκην - I will not steal my victory",
@@ -149,7 +147,7 @@ export default {
       {
         "title": "Grammar",
         "color": "triadic",
-        "src": require('@/assets/grammar.webp'),
+        "src": import('@/assets/grammar.webp'),
         "link": "/grammar",
         "subTitle": "Dionysios",
         "quote": "Γραμματική ἐστιν ἐμπειρία τῶν παρὰ ποιηταῖς τε καὶ συγγραφεῦσιν ὡς ἐπὶ τὸ πολὺ λεγομένων - Grammar is an experimental knowledge of the usages of language as generally current among poets and prose writers",
@@ -161,7 +159,7 @@ export default {
       {
         "title": "Texts",
         "color": "triadic",
-        "src": require('@/assets/alexandria.webp'),
+        "src": import('@/assets/alexandria.webp'),
         "link": "/texts",
         "subTitle": "Herodotos",
         "quote": "Ἡροδότου Ἁλικαρνησσέος ἱστορίης ἀπόδεξις ἥδε - This is the display of the inquiry of Herodotos of Halikarnassos",
@@ -182,7 +180,7 @@ export default {
   created() {
     if (this.isMobile()) {
       this.flex = 12;
-      this.odysseus = require('@/assets/mobile_odysseus.webp')
+      this.odysseus = import('@/assets/mobile_odysseus.webp')
 
     }
     else {

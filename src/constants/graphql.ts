@@ -146,12 +146,23 @@ query grammar($word: String!) {
 }`
 
 export const DictionaryEntry = gql`
-    query dictionary($word: String!, $language: String!, $mode: String!) {
-        dictionary(word: $word, language: $language, mode: $mode) {
-            greek
-            english
-            dutch
-            original
-            linkedWord
+    query dictionary($word: String!, $language: String!, $mode: String!, $searchInText: Boolean!) {
+        dictionary(word: $word, language: $language, mode: $mode, searchInText: $searchInText) {
+            hits {
+                hit{
+                    greek
+                    english
+                    dutch
+                    original
+                    linkedWord
+                }
+                foundInText{
+                    rhemai{
+                        author
+                        greek
+                        translations
+                    }
+                }
+        }
         }
 }`

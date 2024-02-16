@@ -93,28 +93,34 @@
               placeholder="Start typing..."
               prepend-icon="mdi-magnify"
               auto-select-first
+              @keyup.enter="updateSearchHistory($event.target.value)"
           ></v-autocomplete>
         </v-card-text>
 
         <v-divider></v-divider>
 
-        <v-expand-transition>
+        <v-switch
+            v-model="extendedMode"
+            :label="'Extended Mode: ' + (extendedMode ? 'ON' : 'OFF')"
+            color="primary"
+        ></v-switch>
+        <span>Warning: This will increase search times and is only recommended for exact and extended queries.</span>
           <v-card light color="background">
             <v-card-text>
               <h2>Results</h2>
               <br />
-              <v-data-table
-                  dense
-                  :headers="headers"
-                  :items="searchResults"
-                  :items-per-page="10"
-                  item-key="name"
-                  class="elevation-1"
-              ></v-data-table>
+
             </v-card-text>
           </v-card>
-        </v-expand-transition>
       </v-card>
+      <v-data-table
+          :headers="headers"
+          :items="searchResults"
+          :items-per-page="10"
+          item-value="greek"
+          select-strategy="single"
+          show-select
+      ></v-data-table>
     </v-app>
   </div>
 </template>
@@ -135,11 +141,11 @@ export default {
       selectedLanguage: 'greek',
       mode: 'partial',
       searchHistory: [],
+      extendedMode: false,
       headers: [
         {
           text: 'Greek',
           align: 'start',
-          sortable: true,
           value: 'greek',
         },
         { text: 'English', value: 'english' }
@@ -165,15 +171,16 @@ export default {
               word: value,
               language: this.selectedLanguage.toLowerCase(),
               mode: this.mode,
+              searchInText: this.extendedMode
             },
             fetchPolicy: 'no-cache',
           })
           .then((response) => {
-            const hits = response.data.dictionary;
-            this.searchResults = hits.map((hit) => ({
-              greek: hit.greek,
-              english: hit.english,
-              dutch: hit.dutch,
+            const hits = response.data.dictionary.hits;
+            this.searchResults = hits.map((item) => ({
+              greek: item.hit.greek,
+              english: item.hit.english,
+              dutch: item.hit.dutch,
               // Add more properties as needed
             }));
             setTimeout(() => {
@@ -188,7 +195,6 @@ export default {
             }, 1500);
           });
 
-      this.updateSearchHistory(value);
     },
     updateSearchHistory(val) {
       if (!this.searchHistory.includes(val)) {
@@ -198,6 +204,9 @@ export default {
           this.searchHistory.pop();
         }
       }
+    },
+    handleRowClick(val) {
+      console.log(val)
     },
     handleSelect(item) {
       if (item && item.term) {
@@ -219,7 +228,6 @@ export default {
           {
             text: 'Greek',
             align: 'start',
-            sortable: true,
             value: 'greek',
           },
           { text: 'English', value: 'english' }
@@ -268,4 +276,5 @@ form.livesearch input[type="text"] {
   width: 40%;
   background: #f1f1f1;
 }
+
 </style>
