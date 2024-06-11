@@ -3,12 +3,18 @@ import Router from "vue-router";
 
 const routerOptions = [
     { path: "/", view: "HomePage" },
-    { path: "/quiz", view: "Sokrates"},
+    {
+        path: '/quiz',
+        view: "Sokrates",
+        name: "Sokrates",
+        query: ["quizmode", "theme"],
+    },
     // Add query property to "/texts" route
     {
         path: "/texts",
         view: "Herodotos",
-        query: ["author", "book"], // Define the query parameters you expect for this route
+        name: "Herodotos",
+        query: ["author", "book", "reference"], // Define the query parameters you expect for this route
     },
     { path: "/dictionary", view: "Alexandros" },
     { path: "/grammar", view: "Dionysios" },

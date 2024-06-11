@@ -118,4 +118,7 @@ export default {
 
 
 <style>
+.v-data-table tbody tr:hover:not(.v-data-table__expanded__content):not(.v-data-table__empty-wrapper) {
+  background-color: transparent !important;
+}
 </style>
