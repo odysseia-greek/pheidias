@@ -5,7 +5,7 @@
 </template>
 
 <script>
-    import QuizArea from "../components/QuizArea";
+    import QuizArea from "../components/QuizArea.vue";
 
     export default {
         name: 'Sokrates',

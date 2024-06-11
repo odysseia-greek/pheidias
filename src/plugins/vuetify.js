@@ -15,6 +15,8 @@ const vuetify = new Vuetify({
                 secondary: '#1cd18c',
                 triadic: '#1CBCD1',
                 accent: '#8c9eff',
+                text: '#fdf6e3',
+                textAccent: '#fefcf5',
                 error: '#d1311c',
                 footer: '#5C6F7A',
                 textprimary: "#394B6b",

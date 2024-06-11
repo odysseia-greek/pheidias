@@ -1,53 +1,79 @@
 import gql from "graphql-tag";
 
-export const HerodotosTreeQuery = gql`
-    query authors {
-      authors {
-        name 
-        books {
-            book
-        } 
-    }
-}`
-
-export const HerodotosCreateSentence = gql`
-query sentence($author: String!, $book: String!) {
-    sentence(author: $author, book: $book) {
-        id
-        greek
-        author
-        book
-    }
-}`
-
-export const HerodotosCheckSentence = gql`
-query text($author: String!, $sentenceId: String!, $answer: String!) {
-    text(author: $author, sentenceId: $sentenceId, answer: $answer) {
-        levenshtein
-        input
-        quiz
-        splitQuiz {
-            word
-        }
-        splitAnswer {
-            word
-        }
-        matches {
-            word
-            index
-        }
-        mistakes {
-            word
-            index
-            nonMatches {
-                match
-                levenshtein
-                index
-                percentage
+export const HerodotosOptions = gql`
+    query textOptions {
+        textOptions {
+            authors {
+                key
+                books {
+                    key
+                    references {
+                        key
+                        sections {
+                            key
+                        }
+                    }
+                }
             }
         }
     }
-}`
+`
+
+export const Analyze = gql`
+    query analyze($rootword: String!) {
+        analyze(rootword: $rootword) {
+            rootword
+            conjugations{
+                word
+                rule
+            }
+            results {
+                text {
+                    greek
+                    translations
+                    section
+                }
+                referenceLink
+                author
+                book
+                reference
+            }
+        }
+    }
+`
+
+export const HerodotosCreate = gql`
+    query create($input: CreateTextInput!) {
+        create(input: $input) {
+            author
+            book
+            reference
+            rhemai {
+                greek
+                section
+                translations
+            }
+        }
+    }
+`
+
+export const HerodotosCheck = gql`
+    query check($input: CheckTextRequestInput!) {
+        check(input: $input) {
+            averageLevenshteinPercentage
+            sections {
+                section
+                answerSentence
+                quizSentence
+                levenshteinPercentage
+            }
+            possibleTypos {
+                source
+                provided
+            }
+        }
+    }
+`
 
 export const SokratesOptions = gql`
     query options($quizType: String!) {
@@ -97,11 +123,21 @@ export const SokratesCheckBase = gql`
                 greek
                 english
             }
-            foundInText {
-                rhemai {
+            foundInText{
+                rootword
+                conjugations{
+                    word
+                    rule
+                }
+                results{
+                    reference
+                    referenceLink
                     author
-                    greek
-                    translations
+                    book
+                    text{
+                        translations
+                        greek
+                    }
                 }
             }
             progress {
@@ -146,12 +182,33 @@ query grammar($word: String!) {
 }`
 
 export const DictionaryEntry = gql`
-    query dictionary($word: String!, $language: String!, $mode: String!) {
-        dictionary(word: $word, language: $language, mode: $mode) {
-            greek
-            english
-            dutch
-            original
-            linkedWord
+    query dictionary($word: String!, $language: String!, $mode: String!, $searchInText: Boolean!) {
+        dictionary(word: $word, language: $language, mode: $mode, searchInText: $searchInText) {
+            hits {
+                hit{
+                    greek
+                    english
+                    dutch
+                    original
+                    linkedWord
+                }
+                foundInText{
+                    rootword
+                    conjugations{
+                        word
+                        rule
+                    }
+                    results{
+                        reference
+                        referenceLink
+                        author
+                        book
+                        text{
+                            translations
+                            greek
+                        }
+                    }
+                }
+        }
         }
 }`

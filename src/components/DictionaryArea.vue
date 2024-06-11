@@ -1,7 +1,7 @@
 <template>
   <div id="dictionary">
-    <v-app id="dictionaryarea" :style="{ background: $vuetify.theme.themes[theme].background }">
-      <br>
+    <v-app :style="{ background: $vuetify.theme.themes[theme].background }">
+      <v-main>
       <v-card class="mx-auto" color="primary" dark width="100em">
         <v-card-text>
           Dictionary provides words in Ancient Greek, English and Dutch. See
@@ -11,20 +11,6 @@
             <v-icon>mdi-information</v-icon>
           </v-btn>
         </v-card-text>
-        <v-snackbar
-            v-model="errorSnackbar.show"
-            :timeout="1000"
-            color="error"
-        >
-          {{ errorSnackbar.message }}
-          <v-btn
-              color="white"
-              text
-              @click="errorSnackbar.show = false"
-          >
-            Close
-          </v-btn>
-        </v-snackbar>
         <v-dialog v-model="infoDialogVisible" max-width="500">
           <v-card>
             <v-card-title class="headline">Dictionary</v-card-title>
@@ -56,6 +42,16 @@
                 </li>
                 <li>
                   <strong>Results Table:</strong> Displays the search results in the language of your choosing.
+                </li>
+                <li>
+                  <strong>Extended Search:</strong> Queries will also attempt to find the word in all it's declension in text. These declensions are made in the grammar component so the list is always incomplete.
+                  To see it in action try the extended mode with an exact search mode:
+                  <ol>
+                    <li>Λακεδαιμονιος</li>
+                    <li>λόγος</li>
+                    <li>Ἀθηναῖος</li>
+                  </ol>
+                  <strong>Warning: using extended searches is not recommended for partial or fuzzy modes since it adds a lot of overhead to each call!</strong>
                 </li>
               </ul>
 
@@ -93,6 +89,8 @@
               placeholder="Start typing..."
               prepend-icon="mdi-magnify"
               auto-select-first
+              @keyup.enter="updateSearchHistory($event.target.value)"
+              @input="scrollToResults"
           ></v-autocomplete>
         </v-card-text>
 
@@ -103,144 +101,170 @@
             <v-card-text>
               <h2>Results</h2>
               <br />
-              <v-data-table
-                  dense
-                  :headers="headers"
-                  :items="searchResults"
-                  :items-per-page="10"
-                  item-key="name"
-                  class="elevation-1"
-              ></v-data-table>
+              <v-data-table ref="resultsSection"
+                            dense
+                            :headers="headers"
+                            :items="searchResults"
+                            :items-per-page="10"
+                            item-key="id"
+                            class="elevation-1"
+                            :show-expand="extendedMode"
+              >
+                <template v-slot:top>
+                  <v-toolbar flat>
+                    <v-toolbar-title>Dictionary Results</v-toolbar-title>
+                    <v-spacer></v-spacer>
+                    <v-switch
+                        v-model="extendedMode"
+                        label="Extended Search"
+                        class="mt-2"
+                    ></v-switch>
+                  </v-toolbar>
+                </template>
+              </v-data-table>
+              <AnalyzeResults v-if="extendedMode" :analyzeResults="analyzeResults" />
             </v-card-text>
           </v-card>
         </v-expand-transition>
       </v-card>
+      </v-main>
     </v-app>
   </div>
 </template>
 
-
 <script>
-import {DictionaryEntry} from "@/constants/graphql";
+import {ref, computed, watch} from 'vue';
+import { useQuery } from '@vue/apollo-composable';
+import { DictionaryEntry } from '@/constants/graphql';
+import AnalyzeResults from '@/components/AnalyzeResults.vue'; // Import the AnalyzeResults component
 
 export default {
-  name: "DictionaryArea",
-  computed: {
-    theme(){
-      return (this.$vuetify.theme.dark) ? 'dark' : 'light'
-    },
+  name: 'DictionaryArea',
+  components: {
+    AnalyzeResults,
   },
-  data() {
-    return {
-      selectedLanguage: 'greek',
-      mode: 'partial',
-      searchHistory: [],
-      headers: [
-        {
-          text: 'Greek',
-          align: 'start',
-          sortable: true,
-          value: 'greek',
-        },
-        { text: 'English', value: 'english' }
-      ],
-      searchResults: [],
-      errorSnackbar: {
-        show: false,
-        message: ''
-      },
-      loading: false,
-      search: '',
-      infoDialogVisible: false,
-    }
-  },
-  methods: {
-    submitSearch(value) {
-      this.loading = true;
-      this.searchResults = [];
-      this.$apollo
-          .query({
-            query: DictionaryEntry,
-            variables: {
-              word: value,
-              language: this.selectedLanguage.toLowerCase(),
-              mode: this.mode,
-            },
-            fetchPolicy: 'no-cache',
-          })
-          .then((response) => {
-            const hits = response.data.dictionary;
-            this.searchResults = hits.map((hit) => ({
-              greek: hit.greek,
-              english: hit.english,
-              dutch: hit.dutch,
-              // Add more properties as needed
-            }));
-            setTimeout(() => {
-              this.loading = false;
-            }, 1500);
-          })
-          .catch(() => {
-            this.errorSnackbar.message = 'No results. Please try another word.';
-            this.errorSnackbar.show = true;
-            setTimeout(() => {
-              this.loading = false;
-            }, 1500);
-          });
+  setup() {
+    const theme = ref('light');
+    const selectedLanguage = ref('greek');
+    const mode = ref('partial');
+    const extendedMode = ref(false);
+    const search = ref('');
+    const searchHistory = ref([]);
+    const loading = ref(false);
+    const searchResults = ref([]);
+    const analyzeResults = ref([]);
+    const infoDialogVisible = ref(false);
 
-      this.updateSearchHistory(value);
-    },
-    updateSearchHistory(val) {
-      if (!this.searchHistory.includes(val)) {
-        this.searchHistory.unshift(val);
+    const headers = ref([
+      { text: 'Greek', value: 'greek' },
+      { text: 'English', value: 'english' },
+      { text: 'Dutch', value: 'dutch' },
+      // Add more headers as needed
+    ]);
 
-        if (this.searchHistory.length > 10) {
-          this.searchHistory.pop();
-        }
-      }
-    },
-    handleSelect(item) {
-      if (item && item.term) {
-        this.search = item.term;
-        this.submitSearch(item.term);
-      }
-    },
-    updateTableData() {
-      if (this.selectedLanguage === 'dutch') {
-        this.headers = [
-          // Dutch headers
-          { text: 'Grieks', align: 'start', sortable: true, value: 'greek' },
+
+    watch(selectedLanguage, (newLanguage) => {
+      if (newLanguage === 'greek') {
+        headers.value = [
+          { text: 'Greek', value: 'greek' },
+          { text: 'English', value: 'english' },
+          { text: 'Dutch', value: 'dutch' },
+        ];
+      } else if (newLanguage === 'english') {
+        headers.value = [
+          { text: 'English', value: 'english' },
+          { text: 'Greek', value: 'greek' },
+        ];
+      } else if (newLanguage === 'dutch') {
+        headers.value = [
           { text: 'Nederlands', value: 'dutch' },
-          // Add more headers if needed
-        ];
-      } else {
-        // Reset to English headers and search results
-        this.headers = [
-          {
-            text: 'Greek',
-            align: 'start',
-            sortable: true,
-            value: 'greek',
-          },
-          { text: 'English', value: 'english' }
+          { text: 'Grieks', value: 'greek' },
         ];
       }
-    },
+    });
+
+    const fetchDictionaryEntry = (value) => {
+      loading.value = true;
+
+      const { result, error, onResult } = useQuery(DictionaryEntry, {
+        word: value,
+        language: selectedLanguage.value.toLowerCase(),
+        mode: mode.value,
+        searchInText: extendedMode.value,
+      }, { fetchPolicy: 'no-cache' });
+
+      watch(result, (newResult) => {
+        if (newResult) {
+          const hits = newResult.dictionary.hits;
+          searchResults.value = hits.map((item, index) => ({
+            id: item.hit.greek + index,
+            greek: item.hit.greek,
+            english: item.hit.english,
+            dutch: item.hit.dutch,
+            // Add more properties as needed
+          }));
+          if (extendedMode.value) {
+            analyzeResults.value = hits.map((hit) => ({
+              rootword: hit.hit.greek,
+              conjugations: hit.foundInText.conjugations,
+              results: hit.foundInText.results.map((result) => ({
+                author: result.author,
+                book: result.book,
+                text: result.text,
+                reference: result.reference,
+                referenceLink: result.referenceLink,
+              })),
+            }));
+          }
+          setTimeout(() => {
+            loading.value = false;
+          }, 1500);
+        }
+      });
+
+      watch(error, (newError) => {
+        if (newError) {
+          console.error(newError);
+          setTimeout(() => {
+            loading.value = false;
+          }, 1500);
+        }
+      });
+    };
+
+    const updateSearchHistory = (value) => {
+      if (!searchHistory.value.includes(value)) {
+        searchHistory.value.push(value);
+      }
+      fetchDictionaryEntry(value);
+    };
+
+    const scrollToResults = () => {
+      const resultsSection = this.$refs.resultsSection;
+      if (resultsSection) {
+        resultsSection.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+
+    return {
+      theme,
+      selectedLanguage,
+      mode,
+      extendedMode,
+      search,
+      searchHistory,
+      loading,
+      searchResults,
+      analyzeResults,
+      infoDialogVisible,
+      headers,
+      updateSearchHistory,
+      scrollToResults,
+    };
   },
-  watch: {
-    search (val) {
-      val && val !== this.select && this.submitSearch(val)
-    },
-    selectedLanguage() {
-      this.updateTableData();
-      this.submitSearch(this.searchHistory[0])
-    },
-    mode() {
-      this.submitSearch(this.searchHistory[0])
-    }
-  },
-}
+};
 </script>
+
 
 <style scoped>
 h4 {
@@ -267,5 +291,8 @@ form.livesearch input[type="text"] {
   text-align: center;
   width: 40%;
   background: #f1f1f1;
+}
+.italic-text {
+  font-style: italic;
 }
 </style>
