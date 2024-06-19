@@ -60,7 +60,15 @@
                       :items-per-page="10"
                       item-key="name"
                       class="elevation-1"
-                  ></v-data-table>
+                  >
+                    <template v-slot:item.translation="{ item }">
+                      <ol>
+                        <li v-for="(trans, index) in item.translation" :key="index">
+                          {{ trans }}
+                        </li>
+                      </ol>
+                    </template>
+                  </v-data-table>
                 </v-card-text>
               </v-card>
             </v-expand-transition>
@@ -129,26 +137,14 @@ export default {
       });
 
       onResult((response) => {
-        let extraTranslation = [];
-        response.data.grammar.forEach(item => {
-          if (item.translation === '') item.translation = 'No translation found';
-
-          if (item.translation.length > 25) {
-            const words = item.translation.split(';');
-            if (words.length > 1) {
-              words.forEach(word => {
-                extraTranslation.push({
-                  word: queryWord.value,
-                  rule: item.rule,
-                  rootWord: item.rootWord,
-                  translation: word,
-                });
-              });
-            }
+        let formattedGrammar = response.data.grammar.map(item => {
+          if (item.translation.length === 0) {
+            item.translation = ['No translation found'];
           }
+          return item;
         });
 
-        grammarResults.value = response.data.grammar.concat(extraTranslation);
+        grammarResults.value = formattedGrammar;
 
         // Analyze the root word from the first grammar result
         if (response.data.grammar && response.data.grammar.length > 0) {
@@ -159,13 +155,13 @@ export default {
       onError((error) => {
         grammarResults.value = [{
           word: queryWord.value,
-          translation: 'No translation found',
+          translation: ['No translation found'],
           rootWord: queryWord.value,
           rule: 'No rule found'
         }];
         errors.value.push(error);
       });
-    }
+    };
 
     const highlightWord = (text) => {
       const regex = /&&&(.*?)&&&/g;

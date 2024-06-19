@@ -108,7 +108,6 @@
                             :items-per-page="10"
                             item-key="id"
                             class="elevation-1"
-                            :show-expand="extendedMode"
               >
                 <template v-slot:top>
                   <v-toolbar flat>
