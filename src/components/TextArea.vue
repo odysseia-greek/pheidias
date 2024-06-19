@@ -212,7 +212,12 @@
                     <v-sheet height="100%" tile>
                       <v-row class="fill-height" no-gutters>
                         <v-list-item-title class="text-h5 mb-1">{{ result.word }}</v-list-item-title>
-                        <v-list-item-title class="text-h5 mb-1">{{ result.translation }}</v-list-item-title>
+                        <v-list-item-subtitle class="mb-1">
+                          <strong>Translations:</strong>
+                          <ol>
+                            <li v-for="(translation, j) in result.translation" :key="j">{{ translation }}</li>
+                          </ol>
+                        </v-list-item-subtitle>
                         <v-list-item-subtitle><strong>Root:</strong> {{ result.rootWord }}</v-list-item-subtitle>
                         <v-list-item-subtitle><strong>Rule:</strong> {{ result.rule }}</v-list-item-subtitle>
                       </v-row>
@@ -365,7 +370,7 @@ export default {
           if (response.data) {
             grammarResults.value = response.data.grammar;
           } else {
-            grammarResults.value = [{ word, rootWord: word, translation: 'No translation found', rule: 'No rule found' }];
+            grammarResults.value = [{ word, rootWord: word, translation: ['No translation found'], rule: 'No rule found' }];
           }
         });
       } catch (error) {
