@@ -42,7 +42,7 @@ export default defineComponent({
             <li v-for="(similarWord, index) in result.similarWords" :key="`similarWord-${index}`"><strong>{{ similarWord.greek }}</strong> - {{ similarWord.english }}</li>
           </ul>
         </v-card-text>
-        <v-carousel hide-delimiters show-arrows-on-hover>
+        <v-carousel hide-delimiters show-arrows="hover" height="100%">
           <v-carousel-item v-for="(res, resIndex) in result.results" :key="`res-${index}-${resIndex}`">
             <v-card class="section-content">
               <v-card-title>{{ res.author }} - {{res.book}} Reference: {{ res.reference }}</v-card-title>
@@ -51,7 +51,7 @@ export default defineComponent({
                 <p> ---- </p>
                 <p>{{res.text.translations[0]}}</p>
                 <br>
-                <a :href="res.referenceLink" target="_blank"> Link to Text: {{ res.text.section }}</a>
+                <a :href="res.referenceLink" target="_blank"> Link to Interactive Text</a>
               </v-card-text>
             </v-card>
           </v-carousel-item>

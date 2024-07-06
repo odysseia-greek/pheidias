@@ -12,11 +12,10 @@
         placeholder="Start typing..."
         prepend-icon="mdi-magnify"
         auto-select-first
-        @keyup.enter="updateSearchHistory"
-        @input="scrollToResults"
     ></v-autocomplete>
     <div v-if="selectedWord" class="translation">
       <p><strong>Translation:</strong> {{ selectedWord }}</p>
+      <v-divider></v-divider>
       <p>More like this? Time to search the dictionary! <a href="/dictionary">link</a></p>
     </div>
   </v-card-text>
@@ -31,22 +30,17 @@ export default {
     const loading = ref(false);
     const selectedWord = ref(null);
     const words = ref([
-      { greek: 'λόγος', translation: 'word, reason' },
-      { greek: 'ἀγάπη', translation: 'love' },
-      { greek: 'ψυχή', translation: 'soul' },
-      { greek: 'ἄνθρωπος', translation: 'man, human' },
-      { greek: 'θεός', translation: 'god' },
+      { title: 'λόγος', translation: 'word, reason' },
+      { title: 'ἀγάπη', translation: 'love' },
+      { title: 'ψυχή', translation: 'soul' },
+      { title: 'ἄνθρωπος', translation: 'man, human' },
+      { title: 'θεός', translation: 'god' },
     ]);
-
-    const updateSearchHistory = (value) => {
-      console.log(`Searched for: ${value}`);
-    };
 
     return {
       loading,
       selectedWord,
       words,
-      updateSearchHistory,
     };
   },
 };

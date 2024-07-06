@@ -1,24 +1,21 @@
 <template>
   <div>
-    <text-area></text-area>
+    <TextArea></TextArea>
   </div>
 </template>
 
 <script>
-import TextArea from "@/components/TextArea.vue";
+import { defineComponent } from 'vue';
+import TextArea from '@/components/TextArea.vue';
 
-export default {
+export default defineComponent({
   name: 'Herodotos',
-  data () {
-    return {
-    }
-  },
   components: {
     TextArea,
-    'text-area': TextArea
   },
-  methods: {},
-  computed: {
+  setup() {
+    // If you have any state or logic, it will go here
+    return {};
   },
-}
+});
 </script>

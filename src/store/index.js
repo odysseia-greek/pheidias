@@ -1,11 +1,5 @@
-import Vue from 'vue'
-import Vuex from 'vuex'
+import { createPinia } from 'pinia';
 
-Vue.use(Vuex);
+const pinia = createPinia();
 
-const state = {
-}
-
-export default new Vuex.Store({
-    state,
-})
+export default pinia;

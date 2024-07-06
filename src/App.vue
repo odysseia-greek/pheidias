@@ -1,118 +1,118 @@
 <template>
   <v-app id="odysseia">
-      <v-card flat>
-              <v-app-bar
-                  color=triadic
-              >
-                <v-menu
-                    bottom
-                    left
-                >
-                  <template v-slot:activator="{ on, attrs }">
-                    <v-btn
-                        primary
-                        icon
-                        v-bind="attrs"
-                        v-on="on"
-                    >
-                      <v-icon dark>mdi-menu</v-icon>
-                    </v-btn>
-                  </template>
+      <v-app-bar
+          floating
+          color="triadic"
+      >
 
-                  <v-list
-                      nav
-                      width="25em"
-                  >
-                    <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.path" link>
-                      <v-list-item-icon>
-                        <v-icon>{{item.icon}}</v-icon>
-                      </v-list-item-icon>
-                      <v-list-item-title>{{item.title}}</v-list-item-title>
-                    </v-list-item>
-                  </v-list>
-                </v-menu>
-              </v-app-bar>
-      </v-card>
+        <template v-slot:prepend>
+          <v-app-bar-nav-icon></v-app-bar-nav-icon>
+        </template>
+
+        <v-app-bar-title>Odysseia Greek</v-app-bar-title>
+        <v-menu
+            v-model="menu"
+            activator="parent"
+            :close-on-content-click="true"
+            location="left"
+        >
+          <v-list
+              nav min-width="30em"
+              style="background-color: #e0f7fa"
+          >
+            <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.path" link>
+              <v-icon>{{ item.icon }}</v-icon>
+              <v-list-item-title>{{ item.title }}</v-list-item-title>
+            </v-list-item>
+          </v-list>
+        </v-menu>
+      </v-app-bar>
     <v-main>
       <router-view></router-view>
       <v-btn
-          v-scroll="onScroll"
           v-show="fab"
-          fab
-          dark
-          fixed
-          bottom
-          right
-          color="triadic"
           @click="toTop"
+          color="triadic"
+          size="large"
+          icon="mdi-arrow-up"
+          style="position: fixed; bottom: 16px; right: 16px; z-index: 1000;"
       >
-        <v-icon>keyboard_arrow_up</v-icon>
+
       </v-btn>
-    <v-footer
-    color="background">
-      <v-card
-          flat
-          width="100%"
-          class="footer lighten-1 text-center"
-      >
-        <v-card-text>
-          <v-btn
-              v-for="item in footerItems"
-              :key="item.icon"
-              :href="item.path" target="_blank"
-              class="mx-4"
-              icon
-          >
-            <v-icon size="24px">
-              {{ item.icon }}
-            </v-icon>
-          </v-btn>
-        </v-card-text>
+      <v-footer color="background">
+        <v-card flat width="100%" class="footer lighten-1 text-center" color="footer">
+          <v-card-text>
+            <v-btn
+                class="ma-2"
+                :href="item.path"
+                v-for="item in footerItems"
+                :key="item.icon"
+                :icon="item.icon"
+                variant="text"
+            >
+            </v-btn>
 
-        <v-divider></v-divider>
+          </v-card-text>
 
-        <v-card-text class="white--text">
-          {{ new Date().getFullYear() }} — <strong>Odysseia</strong>
-        </v-card-text>
-      </v-card>
-    </v-footer>
+          <v-divider></v-divider>
+
+          <v-card-text class="white--text">
+            {{ new Date().getFullYear() }} — <strong>Odysseia</strong>
+          </v-card-text>
+        </v-card>
+      </v-footer>
     </v-main>
   </v-app>
 </template>
 
-
 <script>
+import { ref, onMounted } from 'vue';
+
 export default {
-  name: "App",
-  data(){
+  name: 'App',
+  setup() {
+    const fab = ref(false);
+    const appTitle = ref('Odysseia');
+    const closeOnClick = ref(true);
+    const menu = ref(false);
+    const footerItems = ref([
+      { icon: 'mdi-github', path: 'https://github.com/odysseia-greek' },
+      { icon: 'mdi-linkedin', path: 'https://nl.linkedin.com/in/joeri-vrijaldenhoven-22713a80' },
+      { icon: 'mdi-book-open-outline', path: '/ploutarchos/' },
+    ]);
+    const menuItems = ref([
+      { title: 'Home', path: '/', icon: 'mdi-home-variant' },
+      { title: 'Quiz', path: '/quiz', icon: 'mdi-alphabet-greek' },
+      { title: 'Texts', path: '/texts', icon: 'mdi-bookshelf' },
+      { title: 'Grammar', path: '/grammar', icon: 'mdi-feather' },
+      { title: 'Dictionary', path: '/dictionary', icon: 'mdi-magnify' },
+    ]);
+
+    const onScroll = (e) => {
+      if (typeof window === 'undefined') return;
+      const top = window.pageYOffset || e.target.scrollTop || 0;
+      fab.value = top > 20;
+    };
+
+    const toTop = () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    onMounted(() => {
+      window.addEventListener('scroll', onScroll);
+    });
+
     return {
-      fab: false,
-      appTitle: 'Odysseia',
-      closeOnClick: true,
-      footerItems: [
-        {icon:'mdi-github', path: 'https://github.com/odysseia-greek'},
-        {icon: 'mdi-linkedin', path: 'https://nl.linkedin.com/in/joeri-vrijaldenhoven-22713a80'},
-        {icon: 'mdi-book-open-outline', path: '/ploutarchos/'}
-  ],
-      menuItems: [
-        { title: 'Home', path: '/', icon: 'mdi-home-variant' },
-        { title: 'Quiz', path: '/quiz', icon: 'mdi-alphabet-greek' },
-        { title: 'Texts', path: '/texts', icon: 'mdi-bookshelf' },
-        { title: 'Grammar', path: '/grammar', icon: 'mdi-feather' },
-        { title: 'Dictionary', path: '/dictionary', icon: 'search' }
-      ]
-    }
+      fab,
+      appTitle,
+      closeOnClick,
+      footerItems,
+      menuItems,
+      menu,
+      onScroll,
+      toTop,
+    };
   },
-  methods: {
-    onScroll (e) {
-      if (typeof window === 'undefined') return
-      const top = window.pageYOffset ||   e.target.scrollTop || 0
-      this.fab = top > 20
-    },
-    toTop () {
-      this.$vuetify.goTo(0)
-    }
-  }
 };
 </script>
 

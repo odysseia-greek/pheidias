@@ -1,18 +1,15 @@
-import Vue from 'vue';
-import VueApollo from 'vue-apollo';
-import { ApolloClient } from 'apollo-client';
-import { HttpLink } from 'apollo-link-http';
-import { InMemoryCache } from 'apollo-cache-inmemory';
-import { provideApolloClient } from '@vue/apollo-composable';
-import {IntrospectionFragmentMatcher} from "apollo-boost";
-import fragmentTypes from '@/constants/fragments.json';
+import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core';
+import { provideApolloClient, DefaultApolloClient } from '@vue/apollo-composable';
+import fragmentTypes from './constants/fragments.json';
 
-
-const fragmentMatcher = new IntrospectionFragmentMatcher({
-    introspectionQueryResultData: fragmentTypes
+const inMemoryCache = new InMemoryCache({
+    possibleTypes: fragmentTypes.__schema.types.reduce((acc, type) => {
+        if (type.possibleTypes) {
+            acc[type.name] = type.possibleTypes.map(possibleType => possibleType.name);
+        }
+        return acc;
+    }, {})
 });
-
-const inMemoryCache = new InMemoryCache({ fragmentMatcher });
 
 // Define the URL for the GraphQL server
 let url = document.location.origin + '/graphql';
@@ -42,15 +39,11 @@ export const apolloClient = new ApolloClient({
     connectToDevTools: true,
 });
 
-// Create the Apollo provider
-const apolloProvider = new VueApollo({
-    defaultClient: apolloClient,
-});
-
-// Install the Vue Apollo plugin
-Vue.use(VueApollo);
-
 // Provide the Apollo client for use with the Composition API
 provideApolloClient(apolloClient);
 
-export default apolloProvider;
+export default {
+    install: (app) => {
+        app.provide(DefaultApolloClient, apolloClient);
+    }
+};
