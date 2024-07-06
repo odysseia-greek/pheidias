@@ -1,24 +1,33 @@
-import Vue from "vue";
-import Router from "vue-router";
+import { createRouter, createWebHistory } from 'vue-router';
 
 const routerOptions = [
-    { path: "/", view: "HomePage" },
+    { path: "/", view: "HomePage", },
     {
         path: '/quiz',
         view: "Sokrates",
         name: "Sokrates",
         query: ["quizmode", "theme"],
     },
-    // Add query property to "/texts" route
     {
         path: "/texts",
         view: "Herodotos",
         name: "Herodotos",
-        query: ["author", "book", "reference"], // Define the query parameters you expect for this route
+        query: ["author", "book", "reference"],
     },
-    { path: "/dictionary", view: "Alexandros" },
-    { path: "/grammar", view: "Dionysios" },
-    { path: "*", view: "NotFound" },
+    {
+        path: "/dictionary",
+        view: "Alexandros" ,
+        name: "Alexandros",
+        query: ["language", "mode", "word", "extended"],
+    },
+    {
+        path: "/grammar",
+        view: "Dionysios",
+        name: "Dionysios",
+        query: ["word"],
+    },
+    // Updated catch-all route
+    { path: '/:pathMatch(.*)*', view: "NotFound" },
 ];
 
 const routes = routerOptions.map((route) => {
@@ -28,9 +37,9 @@ const routes = routerOptions.map((route) => {
     };
 });
 
-Vue.use(Router);
-
-export default new Router({
-    mode: "history",
+const router = createRouter({
+    history: createWebHistory(process.env.BASE_URL),
     routes,
 });
+
+export default router;

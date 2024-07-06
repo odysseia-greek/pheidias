@@ -1,137 +1,113 @@
 <template>
-  <div id="app">
+  <div>
     <v-app id="homepage">
-      <v-container
-          background="primary"
-          style="max-width: 100%"
-          >
-      <v-parallax
-          class=".v-parallax__image-container"
-          dark
-          height=900
-          :src="odysseus"
-      >
-        <v-row
-            align="center"
-            justify="center"
+      <v-container background="primary" style="max-width: 100%">
+        <v-parallax
+            :src="odysseus"
+            height="1200px"
         >
-          <v-col
-              class="text-center"
-              cols="12"
-          >
-            <h1 class="text-lg-h1 text--primary">
+          <div class="d-flex flex-column fill-height justify-center align-center text-white">
+            <h1 class="text-h2 mb-4">
               Welcome to your Odysseia!
             </h1>
-          </v-col>
-        </v-row>
-      </v-parallax>
-      <v-container
-          fluid
-          style="max-width: 1400px"
-      >
-        <v-card color="triadic" style="margin-bottom: 1em; padding: 2em;" elevation="10" rounded="lg">
-          <v-card-text>
-            <v-row>
-              <v-col cols="12" md="6">
-
-                <div class="text-h4 text--primary my-text-block" style="margin-top:1em;">
-                  Welcome to Odysseia-Greek, your interactive gateway to learning Ancient (Attic) Greek!
-                </div>
-                <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'">
-                  Dive into the world of Ancient Greece with our app designed to make learning fun and educational.
-                  While there's a wealth of resources available for studying Ancient Greek, Odysseia-Greek aims to complement them by offering a unique, interactive experience.
-                </div>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" md="6">
-                <v-card class="custom-card" color="text" rounded="lg"  style="margin-top:8em;">
-                  <v-card-text>
-                <TypingText :texts="introTexts" />
-                  </v-card-text>
-                </v-card>
-              </v-col>
-              <v-col cols="12" md="6">
-                <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
-                  <strong>Why choose Odysseia-Greek?</strong>
-                  <br><br>
-                  <strong>Engaging Content:</strong> All tools and exercises are designed to keep you motivated and entertained as you learn.
+          </div>
+        </v-parallax>
+        <v-container fluid style="max-width: 1400px">
+          <v-card color="triadic" style="margin-bottom: 1em; padding: 2em;" elevation="10" rounded="lg">
+            <v-card-text>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div class="text-h4 text--primary my-text-block" style="margin-top:1em;">
+                    Welcome to Odysseia-Greek, your interactive gateway to learning Ancient (Attic) Greek!
+                  </div>
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'">
+                    Dive into the world of Ancient Greece with our app designed to make learning fun and educational. While there's a wealth of resources available for studying Ancient Greek, Odysseia-Greek aims to complement them by offering a unique, interactive experience.
+                  </div>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:8em;">
+                    <v-card-text>
+                      <TypingText :texts="introTexts" />
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                    <strong>Why choose Odysseia-Greek?</strong>
+                    <br><br>
+                    <strong>Engaging Content:</strong> All tools and exercises are designed to keep you motivated and entertained as you learn.
+                    <br>
+                    <strong>Easy to Use:</strong> Each component is designed to be interactive and easy to use. You can find a howto with examples at each component.
+                    <br>
+                    <strong>Community Driven:</strong> We value your input! If you spot any mistakes or have suggestions, don’t hesitate to reach out.
+                  </div>
+                </v-col>
+              </v-row>
+              <v-row>
+                <v-col cols="12" md="6">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                    <strong>New to Ancient Greek?</strong>
+                    <br>
+                    Not sure where to begin? Click the button below to start your journey! Scroll down to see each component with a brief introduction.
+                    <br><br>
+                    For the best experience, we recommend using the app on a tablet with a resolution of 820px.
+                    <br><br>
+                    Embark on your learning adventure with Odysseia-Greek and explore the beauty of Ancient Greek language and culture.
+                  </div>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:8em;">
+                    <v-card-text>
+                      <SearchComponent />
+                    </v-card-text>
+                  </v-card>
+                </v-col>
+                <v-col cols="12" md="6">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                    <strong>Ancient Greek can be challenging</strong>
+                    <br>
+                    As any new language Ancient Greek can be hard. Depending on your knowledge of the alphabet and your familiarity with declensions.
+                    <br><br>
+                    Odysseia-greek aims to provide for people with experience (dialogue mode in quiz, dictionary and grammar components). But also beginners or absolute beginners. With media quiz modes and the translation component.
+                  </div>
+                </v-col>
+              </v-row>
+              <v-btn :to="'/quiz'" color="primary" class="mx-auto my-text-block" large elevation="2" style="margin-top:2em;">
+                Get Started
+              </v-btn>
+            </v-card-text>
+          </v-card>
+          <v-row dense>
+            <v-col v-for="card in cards" :key="card.title" :cols="flex">
+              <v-card :color="card.color" height="100%">
+                <a :href="card.link" style="color: white;">
+                  <v-img
+                      :src="card.src"
+                      height="20em"
+                      cover
+                      gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
+                  >
+                    <v-row class="fill-height white--text align-end" style="margin: 0;">
+                      <v-card-title v-text="card.title" class="white--text"></v-card-title>
+                    </v-row>
+                  </v-img>
+                </a>
+                <br><br>
+                <v-card-subtitle class="pb-0">{{ card.subTitle }}</v-card-subtitle>
+                <v-card-text class="text--primary">
+                  <div class="text--primary">{{ card.shortText }}</div>
                   <br>
-                  <strong>Easy to Use:</strong> Each component is designed to be interactive and easy to use. You can find a howto with examples at each component.
-                  <br>
-                  <strong>Community Driven:</strong> We value your input! If you spot any mistakes or have suggestions, don’t hesitate to reach out.
-                </div>
-              </v-col>
-            </v-row>
-            <v-row>
-              <v-col cols="12" md="6">
-                <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
-                  <strong>New to Ancient Greek?</strong>
-                  <br>
-                  Not sure where to begin? Click the button below to start your journey! Scroll down to see each component with a brief introduction.
-                  <br><br>
-                  For the best experience, we recommend using the app on a tablet with a resolution of 820px.
-                  <br><br>
-                  Embark on your learning adventure with Odysseia-Greek and explore the beauty of Ancient Greek language and culture.
-                </div>
-              </v-col>
-              <v-col cols="12" md="6">
-                <v-card class="custom-card" color="text" rounded="lg" style="margin-top:8em;">
-                  <v-card-text>
-                <SearchComponent></SearchComponent>
-                  </v-card-text>
-                </v-card>
-              </v-col>
-            </v-row>
-            <v-btn :to="'/quiz'" color="primary" class="mx-auto my-text-block" large elevation="2" style="margin-top:2em;">
-              Get Started
-            </v-btn>
-          </v-card-text>
-        </v-card>
-        <v-row dense>
-          <v-col
-              v-for="card in cards"
-              :key="card.title"
-              :cols="flex"
-          >
-            <v-card
-                :color="card.color"
-                height="100%">
-              <a :href="card.link">
-              <v-img
-                  :src="card.src"
-                  class="white--text align-end"
-                  gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-                  height="20em"
-              >
-                <v-card-title v-text="card.title"></v-card-title>
-              </v-img>
-              </a>
-              <v-card-subtitle class="pb-0">
-                {{card.subTitle}}
-              </v-card-subtitle>
-              <v-card-text class="text--primary">
-                <div class="text--primary">
-                  {{card.shortText}}
-                </div>
-                <br>
-                <div class="text--primary">
-                  {{card.longText}}
-                </div>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn
-                    text
-                    style="cursor: pointer"
-                    :to="card.link"
-                >
-                  Link
-                </v-btn>
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
+                  <div class="text--primary">{{ card.longText }}</div>
+                </v-card-text>
+                <v-card-actions>
+                  <v-btn text style="cursor: pointer" :to="card.link">Link</v-btn>
+                </v-card-actions>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
       </v-container>
     </v-app>
   </div>
@@ -147,7 +123,27 @@ export default {
   components: {SearchComponent, TypingText},
   setup() {
     const flex = ref(6);
-    const odysseus = ref(require('@/assets/odysseus.webp'));
+    const odysseus = ref('');
+    const images = import.meta.glob('/src/assets/*.webp');
+
+    const loadImage = () => {
+      import('@/assets/odysseus.webp').then((module) => {
+        odysseus.value = module.default;
+      });
+    };
+
+    const loadCardImages = () => {
+      cards.value.forEach(card => {
+        const importPath = `/src/assets/${card.image}`;
+        if (images[importPath]) {
+          images[importPath]().then((module) => {
+            card.src = module.default;
+          });
+        }
+      });
+    };
+
+
     const introTexts = ref([
       {
         greek: "ἓν οἶδα ὅτι οὐδὲν οἶδα.",
@@ -194,7 +190,8 @@ export default {
       {
         title: "Quiz",
         color: "triadic",
-        src: require('@/assets/school_of_athens.webp'),
+        src: '',
+        image: 'school_of_athens.webp',
         link: "/quiz",
         subTitle: "Sokrates",
         shortText: "Imagine standing in the Athenian Agora, just selling your wares. A man, an ugly man at that, walks up and strikes up a conversation. Before you know it you need to answer questions about morality and how you know you are correct.",
@@ -203,7 +200,8 @@ export default {
       {
         title: "Dictionary",
         color: "triadic",
-        src: require('@/assets/alexander.webp'),
+        src: '', // Will be loaded dynamically
+        image: 'alexander.webp',
         link: "/dictionary",
         subTitle: "Alexandros",
         shortText: "The end of the earth was still not enough in his search and quest for glory. Few people loom as large as Alexander the Great in world history.",
@@ -212,7 +210,8 @@ export default {
       {
         title: "Grammar",
         color: "triadic",
-        src: require('@/assets/grammar.webp'),
+        src: '', // Will be loaded dynamically
+        image: 'grammar.webp',
         link: "/grammar",
         subTitle: "Dionysios",
         shortText: "As a grammarian working in Alexandria, at the time the centre of Greek learning, Dionysios has had a large influence on learning Greek. His grammatical text has been the standard manual for a period up to the Renaissance.",
@@ -221,7 +220,8 @@ export default {
       {
         title: "Texts",
         color: "triadic",
-        src: require('@/assets/alexandria.webp'),
+        src: '', // Will be loaded dynamically
+        image: 'alexandria.webp',
         link: "/texts",
         subTitle: "Herodotos",
         shortText: "Known as the father of history Herodotos came from the city of Halicarnassus in what is now Western Turkey but then a thriving Greek city.",
@@ -232,9 +232,13 @@ export default {
     const isMobile = () => screen.width <= 900;
 
     onMounted(() => {
+      loadImage();
+      loadCardImages();
       if (isMobile()) {
         flex.value = 12;
-        odysseus.value = require('@/assets/mobile_odysseus.webp');
+        import('@/assets/mobile_odysseus.webp').then((module) => {
+          odysseus.value = module.default;
+        });
       } else {
         flex.value = 6;
       }

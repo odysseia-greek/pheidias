@@ -1,24 +1,28 @@
 <template>
   <div>
-    <grammar-area></grammar-area>
+    <GrammarArea></GrammarArea>
   </div>
 </template>
 
 <script>
-import GrammarArea from "@/components/GrammarArea";
+import { defineComponent } from 'vue';
+import GrammarArea from '@/components/GrammarArea.vue';
 
-export default {
+export default defineComponent({
   name: 'Dionysios',
-  data () {
-    return {
-    }
-  },
   components: {
     GrammarArea,
-    'grammar-area': GrammarArea
   },
-  methods: {},
-  computed: {
+  setup() {
+    // If you have any state or logic, it will go here
+    return {};
   },
-}
+});
 </script>
+
+
+
+
+
+
+

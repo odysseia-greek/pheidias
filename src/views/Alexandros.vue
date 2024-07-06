@@ -1,24 +1,26 @@
 <template>
   <div>
-    <dictionary-area></dictionary-area>
+    <DictionaryArea></DictionaryArea>
   </div>
 </template>
 
 <script>
-import DictionaryArea from "@/components/DictionaryArea";
+import { defineComponent } from 'vue';
+import DictionaryArea from '@/components/DictionaryArea.vue';
 
-export default {
+export default defineComponent({
   name: 'Alexandros',
-  data () {
-    return {
-    }
-  },
   components: {
     DictionaryArea,
-    'dictionary-area': DictionaryArea
   },
-  methods: {},
-  computed: {
+  setup() {
+    // If you have any state or logic, it will go here
+    return {};
   },
-}
+});
 </script>
+
+
+
+
+

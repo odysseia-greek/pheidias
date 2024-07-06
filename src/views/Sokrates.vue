@@ -1,25 +1,26 @@
 <template>
-    <div>
-        <quiz-area></quiz-area>
-    </div>
+  <div>
+    <QuizArea></QuizArea>
+  </div>
 </template>
 
 <script>
-    import QuizArea from "../components/QuizArea.vue";
+import { defineComponent } from 'vue';
+import QuizArea from '@/components/QuizArea.vue';
 
-    export default {
-        name: 'Sokrates',
-        data () {
-          return {
-          }
-      },
-        components: {
-          QuizArea,
-            'quiz-area': QuizArea
-        },
-        methods: {
-        },
-        computed: {
-        },
-      }
+export default defineComponent({
+  name: 'Sokrates',
+  components: {
+    QuizArea,
+  },
+  setup() {
+    // If you have any state or logic, it will go here
+    return {};
+  },
+});
 </script>
+
+
+
+
+
