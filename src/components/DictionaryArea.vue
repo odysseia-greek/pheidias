@@ -306,7 +306,6 @@ export default {
     };
 
     const updateSearchHistory = (value) => {
-      console.log(value);
       if (value === null || value === '') {
         return
       }

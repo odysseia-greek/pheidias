@@ -155,8 +155,6 @@ export default {
           parsedrootWord = parsedrootWord.split(',')[0].trim();
         }
 
-        console.log(parsedrootWord);
-
         if (foundRootWords.has(parsedrootWord) || foundTranslations.has(result.translation)) {
           return; // Skip if the root word has already been queried
         }

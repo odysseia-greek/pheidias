@@ -264,7 +264,7 @@
                                         }"
                     >
                       <v-img
-                          :src="`/src/assets/icons/${item.imageUrl}`"
+                          :src="loadedImages[item.imageUrl] || ''"
                           class="mb-2"
                           aspect-ratio="1"
                       >
@@ -320,6 +320,7 @@ export default {
     AnalyzeResults,
     Dialogue,
   },
+
   setup() {
     const { proxy } = getCurrentInstance();
     const minimized = ref(false);
@@ -360,6 +361,27 @@ export default {
     ];
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const quizContainerRef = ref();
+
+    const loadedImages = reactive({});
+    const images = import.meta.glob('../assets/icons/*.webp');
+
+    const getImageUrl = async (imageName) => {
+      const imagePath = `../assets/icons/${imageName}`;
+      if (images[imagePath]) {
+        const image = await images[imagePath]();
+        return image.default;
+      }
+      return '';
+    };
+
+    // Watch for changes in answers and load corresponding images
+    watch(answers, async (newAnswers) => {
+      for (const item of newAnswers) {
+        if (item.imageUrl && !loadedImages[item.imageUrl]) {
+          loadedImages[item.imageUrl] = await getImageUrl(item.imageUrl);
+        }
+      }
+    }, { immediate: true });
 
     const randomSet = () => {
       selectedSet.value = Math.floor(Math.random() * maxSet.value) + 1;
@@ -664,6 +686,9 @@ export default {
       quizContainerRef,
       analyzeResults,
       dialogueContent,
+      loadedImages,
+      images,
+      getImageUrl,
       toggleDisplayInfo,
       highlightText,
       scrollMeTo,
