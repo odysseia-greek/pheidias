@@ -4,9 +4,7 @@
       <v-main>
       <v-card color="primary">
         <v-card-text>
-          Dictionary provides words in Ancient Greek, English and Dutch. See
-          <a class="grey--text text--lighten-3" href="https://github.com/odysseia-greek/olympia/tree/master/demokritos/lexiko" target="_blank">the GitHub repository</a>
-          for examples.
+          Dictionary provides words in Ancient Greek, English and Dutch.
           <v-btn @click="infoDialogVisible = true" variant="text" icon="mdi-information">
           </v-btn>
         </v-card-text>
@@ -92,7 +90,7 @@
                 <v-divider></v-divider>
                 <v-list-item>
                 <v-list-item-title>
-                  <strong>Warning:</strong>
+                  <strong>Please mind:</strong>
                 </v-list-item-title>
                 <v-list-item-subtitle>
                   Extended searches work only with language set to Greek language and Exact search mode!
@@ -121,6 +119,16 @@
           <v-radio color="secondary" label="Fuzzy" value="fuzzy"></v-radio>
         </v-radio-group>
 
+        <h3 class="mx-4" v-if="selectedLanguage === 'greek' && dictionaryMode === 'exact'">Extended Search</h3>
+        <v-switch
+            class="mx-4"
+            v-if="selectedLanguage === 'greek' && dictionaryMode === 'exact'"
+            v-model="extendedMode"
+            label="Search word in available texts"
+            color="secondary"
+        ></v-switch>
+
+
         <v-card-text>
           <v-autocomplete
               :loading="loading"
@@ -144,8 +152,7 @@
         <v-expand-transition>
           <v-card light color="background">
             <v-card-text>
-              <h2 ref="resultsContainerRef">Results</h2>
-              <br />
+
               <v-data-table
                             dense
                             :headers="headers"
@@ -156,14 +163,8 @@
               >
                 <template v-slot:top>
                   <v-toolbar flat>
-                    <v-toolbar-title>Dictionary Results</v-toolbar-title>
+                    <h2 ref="resultsContainerRef" class="mx-4">Dictionary Results</h2>
                     <v-spacer></v-spacer>
-                    <v-switch
-                        v-if="selectedLanguage === 'greek' && dictionaryMode === 'exact'"
-                        v-model="extendedMode"
-                        label="Extended Search"
-                        color="primary"
-                    ></v-switch>
                   </v-toolbar>
                 </template>
               </v-data-table>
