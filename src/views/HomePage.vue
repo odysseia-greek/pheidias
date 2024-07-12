@@ -2,16 +2,42 @@
   <div>
     <v-app id="homepage">
       <v-container background="primary" style="max-width: 100%">
-        <v-parallax
-            :src="odysseus"
-            height="1200px"
-        >
-          <div class="d-flex flex-column fill-height justify-center align-center text-white">
-            <h1 class="text-h2 mb-4">
+
+        <v-parallax :src="odysseus" height="1000px">
+          <div class="d-flex flex-column justify-center align-center text-white">
+            <h1 class="text-h2 mb-2" style="margin: 2em; text-align: center">
               Welcome to your Odysseia!
             </h1>
+            <h2 class="text-h4 mb-2" style="margin: 1em; text-align: center">
+              Start learning Ancient Greek Today
+            </h2>
+            <h3 class="text-h5 mb-2" style="margin-top: 5em; margin-left: 1em; margin-right: 1em; text-align: center">
+              Not sure where to start? Choose your level of Ancient Greek.
+            </h3>
+            <v-row class="d-flex justify-center text-center">
+              <v-col cols="12" md="4">
+                <v-btn color="#ffd700" class="mx-4" width="10em" :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
+                  Philosopher
+                </v-btn>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-btn color="#c0c0c0" class="mx-4" width="10em" :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Euterpe'">
+                  Sophist
+                </v-btn>
+              </v-col>
+              <v-col cols="12" md="4">
+                <v-btn color="#cd7f32" class="mx-4" width="10em" :href="'/quiz?quizmode=media&theme=Basic'">
+                  Demagogue
+                </v-btn>
+              </v-col>
+            </v-row>
+            <v-icon class="mt-4" size="36">
+              mdi-chevron-down
+            </v-icon>
+            <p class="scroll-indicator" style="margin-top: 1em; text-align: center">Or scroll down for more info</p>
           </div>
         </v-parallax>
+
         <v-container fluid style="max-width: 1400px">
           <v-card color="triadic" style="margin-bottom: 1em; padding: 2em;" elevation="10" rounded="lg">
             <v-card-text>
@@ -27,14 +53,14 @@
               </v-row>
               <v-row>
                 <v-col cols="12" md="6">
-                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:8em;">
+                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:2em;">
                     <v-card-text>
                       <TypingText :texts="introTexts" />
                     </v-card-text>
                   </v-card>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:2em;">
                     <strong>Why choose Odysseia-Greek?</strong>
                     <br><br>
                     <strong>Engaging Content:</strong> All tools and exercises are designed to keep you motivated and entertained as you learn.
@@ -47,36 +73,32 @@
               </v-row>
               <v-row>
                 <v-col cols="12" md="6">
-                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:2em;">
                     <strong>New to Ancient Greek?</strong>
                     <br>
-                    Not sure where to begin? Click the button below to start your journey! Scroll down to see each component with a brief introduction.
-                    <br><br>
-                    For the best experience, we recommend using the app on a tablet with a resolution of 820px.
+                    Not sure where to begin? Scroll up and start your journey as a philosopher, sophist or demagogue. Or scroll down to see each component explained with a brief introduction.
                     <br><br>
                     Embark on your learning adventure with Odysseia-Greek and explore the beauty of Ancient Greek language and culture.
                   </div>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:8em;">
-                    <v-card-text>
+                  <v-card class="custom-card" color="text" rounded="lg" style="margin-top:2em;">
+                    <v-card-text style="padding: 0;" width="100%">
+                      <v-card-title>Example Dictionary</v-card-title>
                       <SearchComponent />
                     </v-card-text>
                   </v-card>
                 </v-col>
                 <v-col cols="12" md="6">
-                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:5em;">
+                  <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:2em;">
                     <strong>Ancient Greek can be challenging</strong>
                     <br>
-                    As any new language Ancient Greek can be hard. Depending on your knowledge of the alphabet and your familiarity with declensions.
+                    Learning Ancient Greek, like any new language, can be difficult. The complexity often depends on your knowledge of the alphabet and familiarity with declensions.
                     <br><br>
-                    Odysseia-greek aims to provide for people with experience (dialogue mode in quiz, dictionary and grammar components). But also beginners or absolute beginners. With media quiz modes and the translation component.
+                    Odysseia-Greek caters to both experienced learners and beginners. For those with more experience, we offer a dialogue mode in quizzes, along with dictionary and grammar components. For beginners or absolute newcomers, we provide media quiz modes and a texts component to facilitate learning.
                   </div>
                 </v-col>
               </v-row>
-              <v-btn :to="'/quiz'" color="primary" class="mx-auto my-text-block" large elevation="2" style="margin-top:2em;">
-                Get Started
-              </v-btn>
             </v-card-text>
           </v-card>
           <v-row dense>
@@ -102,7 +124,7 @@
                   <div class="text--primary">{{ card.longText }}</div>
                 </v-card-text>
                 <v-card-actions>
-                  <v-btn text style="cursor: pointer" :to="card.link">Link</v-btn>
+                  <v-btn variant="text" style="cursor: pointer" :to="card.link">Link</v-btn>
                 </v-card-actions>
               </v-card>
             </v-col>
@@ -255,8 +277,20 @@ export default {
 </script>
 
 <style>
-.v-parallax__image-container {
-  opacity: 0.8;
+.scroll-indicator {
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0);
+  }
+  40% {
+    transform: translateY(-10px);
+  }
+  60% {
+    transform: translateY(-5px);
+  }
 }
 
 .my-text-block {
@@ -265,12 +299,6 @@ export default {
 
 .custom-card {
   padding: 1em;
-}
-
-@media only screen and (max-width: 820px) {
-  .my-card {
-    width: 100%;
-  }
 }
 
 #homepage h1.text-lg-h1 {

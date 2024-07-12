@@ -228,7 +228,7 @@ export default {
                 dialogueText.value[index].isCorrectlyPlaced = true;
                 setTimeout(() => {
                   dialogueText.value[index].isCorrectlyPlaced = false;
-                }, 10000); // Remove the flashing effect after 10 seconds
+                }, 5000); // Remove the flashing effect after 10 seconds
               }
             }
           });
@@ -372,7 +372,11 @@ export default {
 }
 
 .correctly-placed .dialogue-bubble {
-  animation: flash-green 1s infinite;
+  animation: flash-green 2s infinite;
+  border-width: 4px; /* Increase the border width */
+  border-style: solid; /* Ensure the border style is solid */
+  padding: 10px; /* Optional: add padding to make space for the border */
+  box-sizing: border-box; /* Ensure the border is included in the element's dimensions */
 }
 
 .wrongly-placed .dialogue-bubble {

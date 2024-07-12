@@ -20,7 +20,7 @@
               nav min-width="30em"
               style="background-color: #e0f7fa"
           >
-            <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.path" link>
+            <v-list-item v-for="(item, i) in menuItems" :key="i" :to="item.path" link @click="toTop">
               <v-icon>{{ item.icon }}</v-icon>
               <v-list-item-title>{{ item.title }}</v-list-item-title>
             </v-list-item>

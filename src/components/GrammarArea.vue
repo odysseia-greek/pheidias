@@ -6,7 +6,8 @@
           <v-card-text class="d-flex justify-space-between align-center">
             <div>
               <strong>Grammar Declension Tool</strong><br>
-              Enter a word in its undeclined form (e.g., λόγων) to see its declensions and root word (e.g., λόγος).
+              Enter a word in its undeclined form (e.g., λόγων) to see its declensions and root word (e.g., λόγος).<br>
+              The root word is then searched within available texts in all the currently known conjugations.
             </div>
             <v-btn @click="infoDialogVisible = true" variant="text" icon="mdi-information"></v-btn>
           </v-card-text>
@@ -27,8 +28,10 @@
                   <strong>Search Input:</strong>
                 </v-list-item-title>
                 <v-list-item>
-                  Enter a word in its undeclined form to see its declensions and root word. For example, entering <em>λόγων</em> will show its declension and root word <em>λόγος</em>. The root word is then searched within available texts and similar words are displayed.<br><br>
-                  <strong>Some Examples:</strong>
+                  Enter a word in its undeclined form to see its declensions and root word. For example, entering <em>λόγων</em> will show its declension and root word <em>λόγος</em>.
+                  <br>
+                  The root word is then searched within available texts in all the currently known conjugations.
+                  <br><br>
                   <ul>
                     <li>ἔβαλλε</li>
                     <li>φέροντος</li>

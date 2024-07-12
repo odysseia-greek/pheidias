@@ -2,6 +2,42 @@
   <div id="text">
     <v-app :style="{ background: $vuetify.theme.themes[theme].background }">
       <v-main>
+        <v-expansion-panels color="secondary" v-if="showInfoBar">
+          <v-expansion-panel>
+            <v-expansion-panel-title>
+              <v-icon left>mdi-information</v-icon>
+              Don't know what to do?
+              <v-spacer></v-spacer>
+              <v-btn
+                  icon="mdi-close"
+                  variant="text"
+                  @click="showInfoBar = !showInfoBar"
+                  class="mx-4"
+              >
+              </v-btn>
+            </v-expansion-panel-title>
+            <v-expansion-panel-text>
+              <v-card-title class="headline">Text Translation</v-card-title>
+              <v-card-text>
+                <ol>
+                  <li><strong>Select Author and Book</strong> once selected you will get the "references" these point to passages in the text and you can see an example here:<a href="https://scaife.perseus.org/reader/urn:cts:greekLit:tlg0016.tlg001.perseus-grc2:1.1.0-1.1.4/"> Scaife</a>.</li>
+                  <li>You can use either the <strong>Search Input</strong>, which is autocompleted and can search for both authors and books. Or select an author and a book from the list below.</li>
+                  <li><strong>Select Reference and optional section</strong> and start translating! Once you are done click the <strong>CHECK</strong> button in the bottom to see how you did. Your entry is checked against official translations and a levenshtein score is calculated to see how correct you are. This however does not mean your translation is wrong - it might just be a different word order or you used a different word.</li>
+                  <li>Each word is <strong>clickable!</strong> This will open a dialog where a declension is attempted as well as links to the grammar and dictionary component to really get all the info about a word that can be found.</li>
+                  <li>Once you have translated a text a <strong>Results</strong> section will appear where you can see possible typos and expand each section to see the official translation.</li>
+                  <li><v-icon>mdi-arrow-top-right-thick</v-icon> will set the official translation in your translation box.</li>
+                  <li><v-icon>mdi-fullscreen</v-icon> will open a full screen, this is especially handy on a mobile phone.</li>
+                </ol>
+                <h2 class="md-4">Extra Information</h2>
+                <ul>
+                  <li>
+                    <strong>Levenshtein</strong> refers to the similarity between two sentences or words (called strings). It measures the number of steps needed to change one word or sentence into another. Each step can be an insertion, deletion, or substitution of a single character. For example, the words "kitten" and "sitting" have a Levenshtein distance of 3 because you can transform "kitten" into "sitting" by substituting 'k' with 's', substituting 'e' with 'i', and inserting a 'g' at the end. The fewer the steps, the more similar the strings are.
+                  </li>
+                </ul>
+              </v-card-text>
+            </v-expansion-panel-text>
+          </v-expansion-panel>
+        </v-expansion-panels>
         <v-container>
           <v-card class="mx-auto" color="primary" dark>
             <v-container>
@@ -11,7 +47,8 @@
                       v-model="searchQuery"
                       :items="autocompleteAuthorsAndBooks"
                       prepend-icon="mdi-magnify"
-                      placeholder="Search Authors and Books"
+                      placeholder="Start Typing"
+                      label="Search Authors and Books"
                       variant="underlined"
                       @keyup.enter="handleKeyPress"
                       clearable
@@ -23,45 +60,8 @@
                       variant="text"
                       @click="toggleExpandAll"
                   >
-                    <v-icon>{{ expandAll ? 'mdi-plus' : 'mdi-minus' }}</v-icon>
+                    <v-icon>{{ expandAll ? 'mdi-minus' : 'mdi-plus' }}</v-icon>
                   </v-btn>
-                  <v-btn
-                      variant="text"
-                      @click="infoDialogVisible = true"
-                      icon="mdi-information"
-                  >
-                  </v-btn>
-                  <v-dialog v-model="infoDialogVisible" max-width="80%">
-                    <v-card>
-                      <v-card-title class="headline">Text Translation</v-card-title>
-                      <v-card-text>
-                        <p>This section provides info on what to expect:</p>
-                        <ul>
-                          <li>
-                            <strong>Search Input:</strong> Allows you to choose to search for authors or books to work with.
-                          </li>
-                          <li>
-                            <v-icon>mdi-close</v-icon> Remove search history
-                          </li>
-                          <li>
-                            <v-icon>mdi-plus</v-icon><v-icon>mdi-minus</v-icon> Collapse or expand all options.
-                          </li>
-                          <li>
-                            <strong>Select Author and Book</strong> once selected you will get the "references" these point to passages in the text and you can see an example here:<a href="https://scaife.perseus.org/reader/urn:cts:greekLit:tlg0016.tlg001.perseus-grc2:1.1.0-1.1.4/"> Scaife</a>.
-                          </li>
-                          <li>
-                            <strong>Select Section</strong> and start translating! Once you are done click the <strong>CHECK</strong> button in the bottom to see how you did. Your entry is checked against official translations and a levenshtein score is calculated to see how correct you are. This however does not mean your translation is wrong - it might just be a different word order or you used a different word.
-                          </li>
-                          <li>
-                            <strong>Levenshtein</strong> refers to the similarity between two sentences or words (called strings). It measures the number of steps needed to change one word or sentence into another. Each step can be an insertion, deletion, or substitution of a single character. For example, the words "kitten" and "sitting" have a Levenshtein distance of 3 because you can transform "kitten" into "sitting" by substituting 'k' with 's', substituting 'e' with 'i', and inserting a 'g' at the end. The fewer the steps, the more similar the strings are.
-                          </li>
-                        </ul>
-                      </v-card-text>
-                      <v-card-actions>
-                        <v-btn color="primary" @click="infoDialogVisible = false">Close</v-btn>
-                      </v-card-actions>
-                    </v-card>
-                  </v-dialog>
                 </v-col>
               </v-row>
             </v-container>
@@ -108,7 +108,7 @@
               </v-row>
               <v-row v-if="selectedReferenceSections.length && selectedReferenceSections[0].key !==''">
                 <v-col cols="12">
-                  <h3>Sections</h3>
+                  <h3 ref="loadingResultsRef">Sections</h3>
                 </v-col>
                 <v-btn
                     v-for="section in selectedReferenceSections"
@@ -133,6 +133,21 @@
           <v-row v-if="resultData">
             <v-col>
               <v-card class="mx-auto paper-card" width="100%">
+                <div v-if="showLoading" class="text-center mb-4" >
+                  <v-progress-circular
+                      :model-value="loadingPercentage"
+                      :rotate="360"
+                      color="primary"
+                      width="8"
+                      size="75"
+                  >
+                    {{ loadingPercentage }}
+                  </v-progress-circular>
+                  <v-card-title>
+                    Checking Your Translations...
+                  </v-card-title>
+                  <v-card-subtitle><v-icon>mdi-information</v-icon>Did you know? You can click each Greek word!</v-card-subtitle>
+                </div>
                 <v-row v-for="rhema in resultData.create.rhemai" :key="rhema.section" class="rhema-section" v-bind:align="mobileView ? 'center' : undefined">
                   <v-col :cols="12" :md="6">
                     <p><strong>Section {{ rhema.section }}</strong></p>
@@ -149,7 +164,8 @@
                     <v-textarea
                         append-icon="mdi-fountain-pen-tip"
                         v-model="translations[rhema.section]"
-                        label="Translation"
+                        v-if="!showLoading"
+                        label="Enter your Translation here"
                         auto-grow
                         clearable
                         variant="outlined"
@@ -162,10 +178,10 @@
                     <v-btn color="primary" @click="checkTranslations">Check</v-btn>
                   </v-col>
                 </v-row>
-                <v-row v-if="translationResults">
+                <v-row v-if="translationResults && !showLoading">
                   <v-col>
                     <v-card class="mx-auto paper-card" width="100%">
-                      <v-card-title>Results</v-card-title>
+                      <h2 ref="resultsContainerRef">Results</h2>
                       <v-card-text>
                         <p class="ma-3"><strong>Average Levenshtein Percentage:</strong> {{ translationResults.averageLevenshteinPercentage }}%</p>
                         <p class="ma-3"><strong>Sections:</strong></p>
@@ -319,7 +335,7 @@
 </template>
 
 <script>
-import { ref, computed, watch, watchEffect, onMounted, getCurrentInstance } from 'vue';
+import {ref, computed, watch, watchEffect, onMounted, getCurrentInstance, nextTick} from 'vue';
 import { useQuery } from '@vue/apollo-composable';
 import { HerodotosOptions, HerodotosCreate, CheckGrammar, HerodotosCheck } from '@/constants/graphql';
 
@@ -338,9 +354,10 @@ export default {
     const selectedBookReferences = ref([]);
     const selectedReferenceSections = ref([]);
     const selectedSectionIndex = ref(-1);
-    const { result, loading, error } = useQuery(HerodotosOptions);
+    const { result, error } = useQuery(HerodotosOptions);
     const mobileView = ref(window.innerWidth <= 600);
-    const infoDialogVisible = ref(false);
+    const resultsContainerRef = ref();
+    const loadingResultsRef = ref();
 
     const resultData = ref(null);
     const queryLoading = ref(false);
@@ -357,6 +374,9 @@ export default {
     const autocompleteAuthorsAndBooks = ref([]);
 
     const sectionFullscreen = ref(false);
+    const showInfoBar = ref(true);
+    const showLoading = ref(false);
+    const loadingPercentage = ref(0);
 
     watchEffect(() => {
       if (result.value) {
@@ -529,7 +549,9 @@ export default {
     };
 
     const checkTranslations = async () => {
-      loading.value = true;
+      scrollToResults('loadingResults');
+      showLoading.value = true;
+      loadingPercentage.value = 0;
       translationResults.value = null;
       translationError.value = null;
 
@@ -550,7 +572,6 @@ export default {
       try {
         const { onResult, onError } = useQuery(HerodotosCheck, variables);
         onResult((response) => {
-          loading.value = false;
           if (response.data) {
             translationResults.value = response.data.check;
           } else {
@@ -559,16 +580,32 @@ export default {
           }
         });
         onError((error) => {
-          loading.value = false;
+          showLoading.value = false;
           translationResults.value = null;
           translationError.value = error;
         });
+
+        const incrementLoading = () => {
+          if (loadingPercentage.value < 100) {
+            const increment = Math.floor(Math.random() * 10) + 1;
+            loadingPercentage.value = Math.min(loadingPercentage.value + increment, 100);
+
+            setTimeout(incrementLoading, Math.floor(Math.random() * 200) + 100);
+          } else {
+            showLoading.value = false;
+            scrollToResults('results');
+            loadingPercentage.value = 0;
+          }
+        };
+
+        incrementLoading();
       } catch (error) {
-        loading.value = false;
+        showLoading.value = false;
         translationResults.value = null;
         translationError.value = error;
       }
     };
+
 
     const groupedTranslations = computed(() => {
       if (!translationResults.value) return [];
@@ -714,6 +751,21 @@ export default {
       if (reference) selectedReference.value = reference;
     };
 
+    const scrollToResults = (refName) => {
+      nextTick(() => {
+
+        console.log(refName)
+        console.log(loadingResultsRef.value)
+        if (refName === 'results' && resultsContainerRef.value) {
+          resultsContainerRef.value.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        if (refName === 'loadingResults' && loadingResultsRef.value) {
+          loadingResultsRef.value.scrollIntoView({ behavior: 'smooth' });
+        }
+      });
+    };
+
     onMounted(() => {
       initializeFromRoute(); // Initialize state from URL on mount
     });
@@ -731,7 +783,6 @@ export default {
       selectedSectionIndex,
       filteredAuthors,
       autocompleteAuthorsAndBooks,
-      loading,
       error,
       resultData,
       queryLoading,
@@ -748,8 +799,13 @@ export default {
       mobileView,
       expandedPanels,
       expandAll,
-      infoDialogVisible,
       sectionFullscreen,
+      showInfoBar,
+      showLoading,
+      loadingPercentage,
+      resultsContainerRef,
+      loadingResultsRef,
+      scrollToResults,
       onWordClick,
       handleKeyPress,
       checkTranslations,
