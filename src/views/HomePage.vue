@@ -16,17 +16,17 @@
             </h3>
             <v-row class="d-flex justify-center text-center">
               <v-col cols="12" md="4">
-                <v-btn color="#ffd700" class="mx-4" :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
+                <v-btn color="#ffd700" class="mx-4" width="10em" :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
                   Philosopher
                 </v-btn>
               </v-col>
               <v-col cols="12" md="4">
-                <v-btn color="#c0c0c0" class="mx-4" :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Euterpe'">
+                <v-btn color="#c0c0c0" class="mx-4" width="10em" :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Euterpe'">
                   Sophist
                 </v-btn>
               </v-col>
               <v-col cols="12" md="4">
-                <v-btn color="#cd7f32" class="mx-4" :href="'/quiz?quizmode=media&theme=Basic'">
+                <v-btn color="#cd7f32" class="mx-4" width="10em" :href="'/quiz?quizmode=media&theme=Basic'">
                   Demagogue
                 </v-btn>
               </v-col>
