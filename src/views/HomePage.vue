@@ -21,7 +21,7 @@
                 </v-btn>
               </v-col>
               <v-col cols="12" md="4">
-                <v-btn color="#c0c0c0" class="mx-4" width="10em" :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Euterpe'">
+                <v-btn color="#c0c0c0" class="mx-4" width="10em" :href="'/quiz?quizmode=authorbased&theme=Plato+-+Euthypro'">
                   Sophist
                 </v-btn>
               </v-col>

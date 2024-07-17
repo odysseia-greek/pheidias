@@ -34,10 +34,13 @@
                           of literature. You are asked to put the conversation in the right order. For advanced learners of Ancient Greek.
                         </li>
                         <li>
-                          <strong>Author:</strong> multiple choice questions taken from great works of literature. Most suited for those looking to learn words from a specific text or intermediate learners.
+                          <strong>Author:</strong> Learn words and see them placed in an actual Greek sentence. Most suited for those looking to learn words from a specific text or intermediate learners.
                         </li>
                         <li>
                           <strong>Media:</strong> this quiz type has images and (in the future) audio for you to have an interactive experience. Easiest mode to start with.
+                        </li>
+                        <li>
+                          <strong>Mutliple Choice:</strong> multiple choice questions can be done in Dutch or English.
                         </li>
                         <br>
                         <br>
@@ -211,17 +214,34 @@
                                 label="Text with images"
                             ></v-switch>
                             <v-switch
-                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'authorbased'"
+                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice'"
                                 v-model="isComprehensive"
                                 color="primary"
                                 label="Extended Results"
                             ></v-switch>
                             <v-switch
-                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'authorbased'"
+                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice' || selectedQuizMode === 'authorbased'"
                                 v-model="showHistoryIndicator"
                                 color="primary"
                                 label="History Table"
                             ></v-switch>
+                      <v-card-subtitle>Seen {{Object.keys(correctAnswersCount).length}} out of {{numberOfItemsInSet}}:</v-card-subtitle>
+                      <v-card-subtitle>Completed out of {{numberOfItemsInSet}}:</v-card-subtitle>
+                      <v-progress-circular style="margin: 2em;" rotate="360" color="primary" width="8" size="72" :model-value="excludedWords.length/numberOfItemsInSet * 100">
+                        {{ Math.round(excludedWords.length/numberOfItemsInSet * 100) }}%
+                      </v-progress-circular>
+                      <v-divider></v-divider>
+                      <v-card-subtitle>Total played: {{numberOfQuestionsPlayed}}</v-card-subtitle>
+                      <v-progress-circular
+                          style="margin: 2em;"
+                          rotate="360"
+                          :color="progressColor"
+                          width="8"
+                          size="72"
+                          :model-value="currentCorrectness"
+                      >
+                        {{ currentCorrectness }}%
+                      </v-progress-circular>
                     </v-card-text>
                   </div>
                 </v-expand-transition>
@@ -233,19 +253,38 @@
             >
               <v-container v-if="quizWord" class="quiz-container">
                 <v-card class="quiz-word-container">
-                  <h2 class="quiz-word">{{ quizWord }}</h2>
+                  <h2 class="quiz-word" v-if="!showNextQuestionIndicator">{{ quizWord }}</h2>
+                  <div v-if="showNextQuestionIndicator" class="text-center mb-4">
+                    <v-progress-circular style="margin-bottom: 2em; margin-top: 2em;" indeterminate color="primary" width="8" size="72"></v-progress-circular>
+                  </div>
                   <p class="quiz-instructions" v-if="selectedQuizMode === 'media'">
                     Match the word to the image.
                   </p>
-                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased'">
-                    Select the correct meaning based on ancient Greek literature.
+                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'multiplechoice'">
+                    Select the correct meaning.
+                  </p>
+                  <p class="quiz-instructions" v-else-if="allAuthorWordsCorrect">
+                    Select a different set or theme for the next sentence. Or check out this text in it's fuller context.
+                    <v-divider></v-divider>
+                    <v-btn
+                        class="ma-5"
+                        color="primary"
+                        @click="goToTextEntry()"
+                    >
+                      Text
+                      <v-icon
+                          end
+                      >
+                        mdi-book-open-variant
+                      </v-icon>
+                    </v-btn>
+                  </p>
+                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect">
+                    Select the correct meaning.
                   </p>
                 </v-card>
               </v-container>
               <br />
-              <div v-if="correct && showNextQuestionIndicator" class="text-center mb-4">
-                <v-progress-circular indeterminate color="primary" width="3" size="48"></v-progress-circular>
-              </div>
               <Dialogue
                   v-if="selectedQuizMode === 'dialogue'"
                   :dialogueOptions="dialogueOptions"
@@ -277,8 +316,25 @@
                 </v-row>
               </v-container>
               <!-- Text Buttons for Other Quiz Modes -->
-              <div v-if="selectedQuizMode === 'authorbased'">
+              <div v-if="selectedQuizMode === 'multiplechoice'">
                 <v-row>
+                  <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
+                    <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
+                      <span>{{ truncateText(item.option) }}</span>
+                    </v-btn>
+                  </v-col>
+                </v-row>
+              </div>
+              <div v-if="selectedQuizMode === 'authorbased'">
+                <v-card class="paper-card ma-3">
+                  <v-card-title v-if="!allAuthorWordsCorrect">The sentence will appear once words are done correctly</v-card-title>
+                  <h2>
+                    <span v-for="(word, index) in splitAuthorSentence" :key="index" :style="{ opacity: wordOpacity(word) + '%' }">{{ word }} </span>
+                  </h2>
+                  <v-divider v-if="allAuthorWordsCorrect"></v-divider>
+                  <v-card-subtitle v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</v-card-subtitle>
+                </v-card>
+                <v-row v-if="!allAuthorWordsCorrect">
                   <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
                     <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
                       <span>{{ truncateText(item.option) }}</span>
@@ -289,7 +345,7 @@
               <AnalyzeResults v-if="isComprehensive" :analyzeResults="analyzeResults" />
               <div style="margin: 5em auto;">
                 <v-data-table
-                    v-if="selectedQuizMode !== quizModes[2].value && selectedQuizMode !== '' && showHistoryIndicator && selectedTheme !== ''"
+                    v-if="selectedQuizMode !== 'dialogue' && selectedQuizMode !== '' && showHistoryIndicator && selectedTheme !== ''"
                     :disable-sort="true"
                     :headers="headers"
                     :items="historyTable"
@@ -310,8 +366,9 @@
 </template>
 
 <script>
-import { ref, reactive, watch, nextTick, onMounted, getCurrentInstance, watchEffect } from 'vue';
+import {ref, reactive, watch, nextTick, onMounted, getCurrentInstance, watchEffect, computed} from 'vue';
 import { useQuery } from '@vue/apollo-composable';
+import {apolloClient} from "@/apollo";
 import { SokratesCheckBase, SokratesCreateQuestion, SokratesOptions } from "@/constants/graphql";
 import AnalyzeResults from "@/components/AnalyzeResults.vue";
 import Dialogue from "@/components/Dialogue.vue";
@@ -338,12 +395,16 @@ export default {
     const answers = ref([]);
     const responseOptions = ref([]);
     const dialogueOptions = ref({});
+    const authorSpecificContent = ref({});
     const lastInteractiveWord = ref("");
     const isTextBoxMinimized = ref(false);
     const showNextQuestionIndicator = ref(false);
     const showHistoryIndicator = ref(true);
     const rhemai = ref([]);
     const historyTable = ref([]);
+    const wordOpacities = ref({});
+    const allAuthorWordsCorrect = ref(false);
+    const excludedWords = ref([]);
     const options = ref([]);
     const correct = ref(false);
     const latestIndex = ref(0);
@@ -351,9 +412,11 @@ export default {
     const dialogueContent = ref({});
     const answerStates = reactive({});
     const analyzeResults = ref([]);
+    const lastPlayedWords = ref([]);
     const quizModes = [
       { text: 'Media', value: 'media', icon: 'mdi-image' , header: 'Beginner Friendly'},
-      { text: 'AuthorBased', value: 'authorbased', icon: 'mdi-book-open-page-variant', header: 'Intermediate'},
+      { text: 'Multiple Choice', value: 'multiplechoice', icon: 'mdi-order-bool-ascending-variant', header: 'Beginner'},
+      { text: 'Author Based', value: 'authorbased', icon: 'mdi-book-open-page-variant', header: 'Intermediate'},
       { text: 'Dialogue', value: 'dialogue', icon: 'mdi-forum', header: 'Advanced'},
     ];
     const headers = [
@@ -362,10 +425,41 @@ export default {
     ];
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const quizContainerRef = ref();
-
     const loadedImages = reactive({});
     const images = import.meta.glob('../assets/icons/*.webp');
     const showInfoBar = ref(true);
+    const splitAuthorSentence = ref([]);
+    const numberOfItemsInSet = ref(0);
+    const currentCorrectness = ref(100);
+    const correctAnswersCount = ref({});
+    const numberOfQuestionsPlayed = ref(0);
+    const correctlyPlayed = ref(0);
+
+    const green = [29, 233, 182]; // RGB for green
+    const orange = [255, 165, 0]; // RGB for orange
+    const red = [233, 29, 29]; // RGB for red
+
+    const progressColor = computed(() => {
+      // Interpolate between green and orange, then orange and red
+      let r, g, b;
+      if (currentCorrectness.value > 50) {
+        const ratio = (currentCorrectness.value - 50) / 50;
+        r = Math.round(orange[0] * (1 - ratio) + green[0] * ratio);
+        g = Math.round(orange[1] * (1 - ratio) + green[1] * ratio);
+        b = Math.round(orange[2] * (1 - ratio) + green[2] * ratio);
+      } else {
+        const ratio = currentCorrectness.value / 50;
+        r = Math.round(red[0] * (1 - ratio) + orange[0] * ratio);
+        g = Math.round(red[1] * (1 - ratio) + orange[1] * ratio);
+        b = Math.round(red[2] * (1 - ratio) + orange[2] * ratio);
+      }
+
+      return `rgb(${r}, ${g}, ${b})`;
+    });
+
+    const wordOpacity = (word) => {
+      return wordOpacities.value[word] || 3;
+    };
 
     const getImageUrl = async (imageName) => {
       const imagePath = `../assets/icons/${imageName}`;
@@ -391,6 +485,11 @@ export default {
       }
     };
 
+    const goToTextEntry = () => {
+      window.open(authorSpecificContent.value.reference, '_blank');
+    }
+
+
     const highlightText = (text) => {
       return text.replace(/&&&(.*?)&&&/g, (match, p1) => {
         return `<span style="font-weight: bold; background-color: yellow; color: black; padding: 0 4px;">${p1}</span>`;
@@ -405,16 +504,25 @@ export default {
       });
     };
 
-    const selectQuiz = (value) => {
-      selectedTheme.value = '';
+    const resetFields = () => {
+      excludedWords.value = [];
+      lastPlayedWords.value = [];
       quizWord.value = '';
       answers.value = [];
       responseOptions.value = [];
+      splitAuthorSentence.value = [];
+      wordOpacities.value = {};
+      correctAnswersCount.value = {};
+    }
+
+    const selectQuiz = (value) => {
+      selectedTheme.value = '';
       selectedQuizMode.value = value;
+      resetFields();
       getOptions(value);
       selectedSet.value = 1;
 
-      if (value === quizModes[2].value) {
+      if (value === 'media' || value === 'multiplechoice') {
         isComprehensive.value = false;
       }
 
@@ -424,7 +532,8 @@ export default {
     };
 
     const onThemeSelect = (item) => {
-      responseOptions.value = [];
+      resetFields();
+
       selectedTheme.value = item.name;
       if (item && item.highestSet) {
         maxSet.value = parseInt(item.highestSet, 10);
@@ -463,6 +572,36 @@ export default {
       }
     });
 
+    const processResult = (newResult) => {
+      if (selectedQuizMode.value === 'media' || selectedQuizMode.value === 'multiplechoice') {
+        quizWord.value = newResult.quiz.quizItem;
+        numberOfItemsInSet.value = newResult.quiz.numberOfItems
+        const slicedArray = newResult.quiz.options.slice(0, 4);
+        createNewArray(slicedArray).then(array => {
+          answers.value = array;
+        });
+      } else if (selectedQuizMode.value === 'authorbased') {
+        authorSpecificContent.value = newResult.quiz;
+        numberOfItemsInSet.value = newResult.quiz.quiz.numberOfItems
+        if (splitAuthorSentence.value.length === 0) {
+          allAuthorWordsCorrect.value = false;
+          wordOpacities.value = {};
+          excludedWords.value = [];
+          lastPlayedWords.value = [];
+          splitAuthorSentence.value = newResult.quiz.fullSentence.split(/(\s+|[.,;:!?])/).filter(Boolean);
+        }
+        const slicedArray = newResult.quiz.quiz.options.slice(0, 4);
+        createNewArray(slicedArray).then(array => {
+          answers.value = array;
+        });
+        quizWord.value = newResult.quiz.quiz.quizItem;
+      } else {
+        quizWord.value = null;
+        dialogueOptions.value = newResult.quiz.dialogue;
+        dialogueContent.value = newResult.quiz.content;
+      }
+    };
+
     const getQuestion = async () => {
       attemptMade.value = false;
       Object.keys(answerStates).forEach(key => delete answerStates[key]);
@@ -470,34 +609,27 @@ export default {
         return;
       }
 
-      const { result, refetch } = useQuery(SokratesCreateQuestion, {
-        theme: selectedTheme.value,
-        quizType: selectedQuizMode.value,
-        set: String(selectedSet.value),
+      let uniqueArrayOfExcludes = [...new Set([...excludedWords.value, ...lastPlayedWords.value])];
+
+      const { data } = await apolloClient.query({
+        query: SokratesCreateQuestion,
+        variables: {
+          theme: selectedTheme.value,
+          quizType: selectedQuizMode.value,
+          set: String(selectedSet.value),
+          excludeWords: uniqueArrayOfExcludes,
+        },
         fetchPolicy: 'no-cache',
       });
 
-      watchEffect(() => {
-        if (result.value) {
-          const newResult = result.value;
-          if (selectedQuizMode.value !== 'dialogue') {
-            quizWord.value = newResult.quiz.quizItem;
-            const slicedArray = newResult.quiz.options.slice(0, 4);
-            createNewArray(slicedArray).then(array => {
-              answers.value = array;
-            });
-          } else {
-            quizWord.value = null;
-            dialogueOptions.value = newResult.quiz.dialogue;
-            dialogueContent.value = newResult.quiz.content;
-          }
-        }
-      });
-
-      await refetch();
+      processResult(data);
     };
 
     const checkAnswer = async (selectedAnswer) => {
+      if (showNextQuestionIndicator.value) {
+        return
+      }
+
       attemptMade.value = true;
       let resultProcessed = false;
 
@@ -513,57 +645,152 @@ export default {
 
       const processResult = async (newResult) => {
         if (newResult) {
-          correct.value = newResult.answer.correct;
-          if (isComprehensive.value && correct.value) {
-            analyzeResults.value = [{
-              rootword: newResult.answer.foundInText.rootword,
-              conjugations: newResult.answer.foundInText.conjugations,
-              similarWords: newResult.answer.similarWords,
-              results: newResult.answer.foundInText.results.map((result) => ({
-                author: result.author,
-                book: result.book,
-                text: result.text,
-                reference: result.reference,
-                referenceLink: result.referenceLink,
-              })),
-            }];
-
-            if (analyzeResults.value[0].rootword === "") {
-              analyzeResults.value[0].rootword = quizWord.value;
+          numberOfQuestionsPlayed.value++
+          if (excludedWords.value.length < numberOfItemsInSet.value - 5) {
+            lastPlayedWords.value.push(newResult.answer.quizWord);
+            // Keep only the last 5 words
+            if (lastPlayedWords.value.length > 5) {
+              lastPlayedWords.value.shift();
             }
+          } else {
+            lastPlayedWords.value = [];
           }
+
+          correct.value = newResult.answer.correct;
+          if (correct.value) {
+            correctlyPlayed.value++
+          }
+
+          currentCorrectness.value = Math.round(correctlyPlayed.value/numberOfQuestionsPlayed.value*100);
 
           answerStates[selectedAnswer.option] = {
             selected: true,
-            isCorrect: correct.value,
+            isCorrect: newResult.answer.correct,
           };
 
-          if (correct.value) {
-            showNextQuestionIndicator.value = true;
-            setTimeout(() => {
-              getNextQuestion();
-              showNextQuestionIndicator.value = false;
-            }, 2000);
-          }
+          if (newResult.answer.__typename === 'AuthorBasedAnswer') {
+            // Handle special case for AuthorBasedAnswer
 
-          answers.value.forEach((answer) => {
-            if (answer.option !== selectedAnswer.option) {
-              answerStates[answer.option] = {
-                selected: false,
-                isCorrect: false,
-              };
+            if (correct.value) {
+              if (!correctAnswersCount.value[newResult.answer.quizWord]) {
+                correctAnswersCount.value[newResult.answer.quizWord] = 0;
+              }
+              correctAnswersCount.value[newResult.answer.quizWord] += 1;
+
+              newResult.answer.wordsInText.forEach(word => {
+                  if (!wordOpacities.value[word]) {
+                    wordOpacities.value[word] = 3;
+                  }
+                  wordOpacities.value[word] += 33;
+                  if (wordOpacities.value[word] >= 100) {
+                    wordOpacities.value[word] = 100;
+                     if (!excludedWords.value.includes(newResult.answer.quizWord)) {
+                       excludedWords.value.push(newResult.answer.quizWord);
+                     }
+                  }
+              });
             }
-          });
 
-          const color = correct.value ? '#1cd18c' : '#e9501d';
-          lastInteractiveWord.value = quizWord.value;
-          const lastAnswer = {
-            greek: quizWord.value,
-            color: color,
-            input: selectedAnswer.option,
-          };
+            if (excludedWords.value.length === numberOfItemsInSet.value) {
+              allAuthorWordsCorrect.value = true
+              return
+            }
 
-          historyTable.value.unshift(lastAnswer);
+            let lowestOpacity = 3;
+            for (const word of Object.keys(wordOpacities.value)) {
+              const opacity = wordOpacities.value[word];
+              if (opacity > lowestOpacity) {
+                lowestOpacity = opacity;
+              }
+            }
+
+            // Set the punctuation opacity to the lowest found opacity
+            splitAuthorSentence.value.forEach((part) => {
+              if (/^[.,;:!?]$/.test(part)) {
+                wordOpacities.value[part] = lowestOpacity;
+              }
+            });
+
+            showNextQuestionIndicator.value = true;
+
+            setTimeout(() => {
+              getQuestion()
+              showNextQuestionIndicator.value = false;
+            }, 1250);
+
+            const color = correct.value ? '#1cd18c' : '#e9501d';
+            lastInteractiveWord.value = quizWord.value;
+            const lastAnswer = {
+              greek: quizWord.value,
+              color: color,
+              input: selectedAnswer.option,
+            };
+
+            historyTable.value.unshift(lastAnswer);
+          } else {
+            if (correct.value) {
+              if (!correctAnswersCount.value[newResult.answer.quizWord]) {
+                correctAnswersCount.value[newResult.answer.quizWord] = 0;
+              }
+              correctAnswersCount.value[newResult.answer.quizWord] += 1;
+
+              if (correctAnswersCount.value[newResult.answer.quizWord] >= 3) {
+                if (!excludedWords.value.includes(newResult.answer.quizWord)) {
+                  excludedWords.value.push(newResult.answer.quizWord);
+                }
+              }
+            }
+
+            if (isComprehensive.value && correct.value) {
+              analyzeResults.value = [{
+                rootword: newResult.answer.foundInText.rootword,
+                conjugations: newResult.answer.foundInText.conjugations,
+                similarWords: newResult.answer.similarWords,
+                results: newResult.answer.foundInText.results.map((result) => ({
+                  author: result.author,
+                  book: result.book,
+                  text: result.text,
+                  reference: result.reference,
+                  referenceLink: result.referenceLink,
+                })),
+              }];
+
+              if (analyzeResults.value[0].rootword === "") {
+                analyzeResults.value[0].rootword = quizWord.value;
+              }
+            }
+
+            if (correct.value) {
+              showNextQuestionIndicator.value = true;
+              setTimeout(() => {
+                if (excludedWords.value.length === numberOfItemsInSet.value) {
+                  excludedWords.value = [];
+                  correctAnswersCount.value = {};
+                }
+                getQuestion()
+                showNextQuestionIndicator.value = false;
+              }, 2000);
+            }
+
+            answers.value.forEach((answer) => {
+              if (answer.option !== selectedAnswer.option) {
+                answerStates[answer.option] = {
+                  selected: false,
+                  isCorrect: false,
+                };
+              }
+            });
+
+            const color = correct.value ? '#1cd18c' : '#e9501d';
+            lastInteractiveWord.value = quizWord.value;
+            const lastAnswer = {
+              greek: quizWord.value,
+              color: color,
+              input: selectedAnswer.option,
+            };
+
+            historyTable.value.unshift(lastAnswer);
+          }
         }
       };
 
@@ -576,6 +803,7 @@ export default {
 
       await refetch();
     };
+
 
     const truncateText = (text) => {
       const maxLength = 35;
@@ -595,6 +823,11 @@ export default {
     };
 
     const getNextQuestion = () => {
+      excludedWords.value = [];
+      lastPlayedWords.value = [];
+      splitAuthorSentence.value = [];
+      wordOpacities.value = {};
+
       showNextQuestionIndicator.value = false;
       getQuestion();
     };
@@ -640,6 +873,9 @@ export default {
 
     watch(selectedSet, () => {
       if (selectedTheme.value) {
+        if (selectedQuizMode.value === 'authorbased') {
+          splitAuthorSentence.value = [];
+        }
         getNextQuestion();
       }
     });
@@ -687,6 +923,19 @@ export default {
       loadedImages,
       images,
       showInfoBar,
+      authorSpecificContent,
+      allAuthorWordsCorrect,
+      excludedWords,
+      splitAuthorSentence,
+      wordOpacities,
+      lastPlayedWords,
+      numberOfItemsInSet,
+      currentCorrectness,
+      correctAnswersCount,
+      numberOfQuestionsPlayed,
+      progressColor,
+      resetFields,
+      wordOpacity,
       getImageUrl,
       highlightText,
       scrollMeTo,
@@ -701,6 +950,7 @@ export default {
       decrementSelectedSet,
       incrementSelectedSet,
       randomTheme,
+      goToTextEntry,
     };
   },
 };

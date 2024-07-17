@@ -85,15 +85,29 @@ export const SokratesOptions = gql`
     }
 }`
 export const SokratesCreateQuestion = gql`
-    query quiz($set: String!, $quizType: String!, $theme: String!) {
-      quiz(set: $set, quizType: $quizType, theme: $theme)  {
+    query quiz($set: String!, $quizType: String!, $theme: String!, $excludeWords: [String!]!) {
+      quiz(set: $set, quizType: $quizType, theme: $theme, excludeWords: $excludeWords)  {
         ... on QuizResponse {
+            numberOfItems
             quizItem
             options{
                 option
                 imageUrl
             }
         }
+          ... on AuthorBasedQuizType {
+              reference
+              translation
+              fullSentence
+              quiz{
+                  numberOfItems
+                  quizItem
+                  options{
+                      option
+                  }
+              }
+
+          }
         ... on DialogueQuiz {
             quizType
             dialogue{
@@ -146,6 +160,12 @@ export const SokratesCheckBase = gql`
                 timesIncorrect
             }
         }
+        ... on AuthorBasedAnswer {
+            quizWord
+            correct
+            wordsInText
+        }
+    
     }
 }`
 
