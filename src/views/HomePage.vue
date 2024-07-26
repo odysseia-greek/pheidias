@@ -3,7 +3,7 @@
     <v-app id="homepage">
       <v-container background="primary" style="max-width: 100%">
 
-        <v-parallax :src="odysseus" height="1000px">
+        <v-parallax :src="odysseus" height="1200px">
           <div class="d-flex flex-column justify-center align-center text-white">
             <h1 class="text-h2 mb-2" style="margin: 2em; text-align: center">
               Welcome to your Odysseia!

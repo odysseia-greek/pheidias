@@ -332,7 +332,7 @@
                     <span v-for="(word, index) in splitAuthorSentence" :key="index" :style="{ opacity: wordOpacity(word) + '%' }">{{ word }} </span>
                   </h2>
                   <v-divider v-if="allAuthorWordsCorrect"></v-divider>
-                  <v-card-subtitle v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</v-card-subtitle>
+                  <h3 v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</h3>
                 </v-card>
                 <v-row v-if="!allAuthorWordsCorrect">
                   <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
@@ -588,7 +588,7 @@ export default {
           wordOpacities.value = {};
           excludedWords.value = [];
           lastPlayedWords.value = [];
-          splitAuthorSentence.value = newResult.quiz.fullSentence.split(/(\s+|[.,;:!?])/).filter(Boolean);
+          splitAuthorSentence.value = newResult.quiz.fullSentence.split(/(\s+|[.,;:!?·])/).filter(Boolean);
         }
         const slicedArray = newResult.quiz.quiz.options.slice(0, 4);
         createNewArray(slicedArray).then(array => {
@@ -646,13 +646,12 @@ export default {
       const processResult = async (newResult) => {
         if (newResult) {
           numberOfQuestionsPlayed.value++
-          if (excludedWords.value.length < numberOfItemsInSet.value - 5) {
+          if (excludedWords.value.length < numberOfItemsInSet.value - 5 && newResult.answer.correct) {
             lastPlayedWords.value.push(newResult.answer.quizWord);
-            // Keep only the last 5 words
-            if (lastPlayedWords.value.length > 5) {
+            if (lastPlayedWords.value.length > numberOfItemsInSet.value/2) {
               lastPlayedWords.value.shift();
             }
-          } else {
+          } else if (newResult.answer.correct) {
             lastPlayedWords.value = [];
           }
 
@@ -706,7 +705,7 @@ export default {
 
             // Set the punctuation opacity to the lowest found opacity
             splitAuthorSentence.value.forEach((part) => {
-              if (/^[.,;:!?]$/.test(part)) {
+              if (/^[.,;:!?·]$/.test(part)) {
                 wordOpacities.value[part] = lowestOpacity;
               }
             });
@@ -875,6 +874,7 @@ export default {
       if (selectedTheme.value) {
         if (selectedQuizMode.value === 'authorbased') {
           splitAuthorSentence.value = [];
+          correctAnswersCount.value = {};
         }
         getNextQuestion();
       }
