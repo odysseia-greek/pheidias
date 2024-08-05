@@ -148,16 +148,17 @@
                   </v-card-title>
                   <v-card-subtitle><v-icon>mdi-information</v-icon>Did you know? You can click each Greek word!</v-card-subtitle>
                 </div>
+                <GrammarDetails :clickedWord="clickedWord" :forceUpdate="forceUpdate" />
                 <v-row v-for="rhema in resultData.create.rhemai" :key="rhema.section" class="rhema-section" v-bind:align="mobileView ? 'center' : undefined">
                   <v-col :cols="12" :md="6">
                     <p><strong>Section {{ rhema.section }}</strong></p>
                     <p>
-              <span v-for="(word, index) in rhema.greek.split(' ')" :key="index">
-                <span class="clickable-word" @click="onWordClick(word)">
-                  {{ word }}
-                </span>
-                <span v-if="index < rhema.greek.split(' ').length - 1">&nbsp;</span>
-              </span>
+                    <span v-for="(word, index) in rhema.greek.split(' ')" :key="index">
+                      <span class="clickable-word" @click="setClickedWord(word)">
+                        {{ word }}
+                      </span>
+                      <span v-if="index < rhema.greek.split(' ').length - 1">&nbsp;</span>
+                    </span>
                     </p>
                   </v-col>
                   <v-col :cols="12" :md="6">
@@ -247,88 +248,6 @@
             </v-col>
           </v-row>
         </v-container>
-        <v-dialog v-model="dialog" max-width="600px">
-          <v-card color="papyrus">
-            <v-card-title class="headline">Word Details</v-card-title>
-            <v-card-text>
-              <div v-if="grammarError">{{ grammarError.message }}</div>
-              <div v-if="grammarResults">
-                <v-carousel
-                    :continuous="false"
-                    :cycle="cycle"
-                    show-arrows="hover"
-                    hide-delimiters
-                >
-                  <v-carousel-item v-for="(result, i) in grammarResults" :key="i" color="papyrus">
-                    <v-sheet
-                        height="100%"
-                        class="text-center ma-5"
-                        color="secondaryPapyrus"
-                    >
-                      <v-list style="background: #fefcf5">
-                        <v-list-item-title class="text-h5 ma-1">{{ result.word }}</v-list-item-title>
-                        <v-list-item-subtitle class="ma-1">
-                          <strong>Translations:</strong>
-                          <v-list-item
-                              v-for="(translation, j) in result.translation"
-                              :key="j"
-                              :title="j+1 + '. ' + translation"
-                              class="ma-0"
-                          ></v-list-item>
-                        </v-list-item-subtitle>
-                        <v-list-item-subtitle class="ma-1"><strong>Root:</strong> {{ result.rootWord }}</v-list-item-subtitle>
-                        <v-list-item-subtitle class="ma-1"><strong>Rule:</strong> {{ result.rule }}</v-list-item-subtitle>
-                        <br>
-                        <br>
-                        <v-divider></v-divider>
-                        <v-btn
-                            class="ma-5"
-                            color="primary"
-                            @click="goToDictionaryEntry(result.rootWord)"
-                        >
-                          Dictionary
-                          <v-icon
-                              end
-                          >
-                            mdi-text-box-search
-                          </v-icon>
-                        </v-btn>
-                        <br>
-                        <v-btn
-                            class="ma-5"
-                            color="primary"
-                            @click="goToGrammarEntry(result.rootWord)"
-                        >
-                          Grammar
-                          <v-icon
-                              end
-                          >
-                            mdi-book-search
-                          </v-icon>
-                        </v-btn>
-                      </v-list>
-                    </v-sheet>
-                  </v-carousel-item>
-                </v-carousel>
-                <v-list two-line style="background: #fdf6e3">
-                  <v-list-item>
-                    <v-list-item-action>
-                      <v-switch
-                          color="primary"
-                          v-model="cycle"
-                          label="Cycle Translations"
-                          inset
-                      ></v-switch>
-                    </v-list-item-action>
-                  </v-list-item>
-                </v-list>
-              </div>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn color="primary" @click="dialog = false">Close</v-btn>
-            </v-card-actions>
-          </v-card>
-        </v-dialog>
       </v-main>
     </v-app>
   </div>
@@ -337,9 +256,13 @@
 <script>
 import {ref, computed, watch, watchEffect, onMounted, getCurrentInstance, nextTick} from 'vue';
 import { useQuery } from '@vue/apollo-composable';
-import { HerodotosOptions, HerodotosCreate, CheckGrammar, HerodotosCheck } from '@/constants/graphql';
+import { HerodotosOptions, HerodotosCreate, HerodotosCheck } from '@/constants/graphql';
+import GrammarDetails from "@/components/GrammarDetails.vue";
 
 export default {
+  components: {
+    GrammarDetails,
+  },
   setup() {
     const { proxy } = getCurrentInstance();
     const theme = ref('light');
@@ -363,20 +286,19 @@ export default {
     const queryLoading = ref(false);
     const queryError = ref(null);
 
-    const dialog = ref(false);
     const clickedWord = ref('');
     const grammarResults = ref([]);
     const grammarError = ref(null);
     const translations = ref({});
     const translationResults = ref(null);
     const translationError = ref(null);
-    const cycle = ref(false);
     const autocompleteAuthorsAndBooks = ref([]);
 
     const sectionFullscreen = ref(false);
     const showInfoBar = ref(true);
     const showLoading = ref(false);
     const loadingPercentage = ref(0);
+    const forceUpdate = ref(0);
 
     watchEffect(() => {
       if (result.value) {
@@ -450,24 +372,6 @@ export default {
         }
     );
 
-    const goToDictionaryEntry = (rootWord) => {
-      const url = `dictionary?mode=exact&language=greek&extended=true&word=${encodeURIComponent(rootWord)}`;
-      window.open(url, '_blank');
-    }
-
-    const goToGrammarEntry = (rootWord) => {
-      if (rootWord.includes('–')) {
-        rootWord = rootWord.split('–')[0].trim();
-      }
-
-      if (rootWord.includes(',')) {
-        rootWord = rootWord.split(',')[0].trim();
-      }
-
-      const url = `grammar?word=${encodeURIComponent(rootWord)}`;
-      window.open(url, '_blank');
-    }
-
     const setSectionText = (text, section) => {
       translations.value[section] = text
     }
@@ -485,35 +389,6 @@ export default {
       if (event.key === 'Enter') {
         searchQuery.value = event.target.value;
       }
-    };
-
-    const fetchGrammarDetails = async (word) => {
-      grammarError.value = null;
-      grammarResults.value = null;
-      try {
-        const { onResult } = useQuery(CheckGrammar, { word });
-        onResult((response) => {
-          if (response.data) {
-            grammarResults.value = response.data.grammar;
-          } else {
-            grammarResults.value = [{ word, rootWord: word, translation: ['No translation found'], rule: 'No rule found' }];
-          }
-        });
-      } catch (error) {
-        grammarError.value = error;
-      }
-    };
-
-    const onWordClick = (word) => {
-      // Define a regular expression to match common punctuation and reading signs
-      const punctuationRegex = /[.,;!?(){}[\]"'<>]/g;
-
-      // Remove the punctuation from the word
-      word = word.replace(punctuationRegex, '').trim();
-
-      clickedWord.value = word;
-      dialog.value = true;
-      fetchGrammarDetails(word);
     };
 
     const filteredAuthors = computed(() => {
@@ -753,9 +628,6 @@ export default {
 
     const scrollToResults = (refName) => {
       nextTick(() => {
-
-        console.log(refName)
-        console.log(loadingResultsRef.value)
         if (refName === 'results' && resultsContainerRef.value) {
           resultsContainerRef.value.scrollIntoView({ behavior: 'smooth' });
         }
@@ -764,6 +636,11 @@ export default {
           loadingResultsRef.value.scrollIntoView({ behavior: 'smooth' });
         }
       });
+    };
+
+    const setClickedWord = (word) => {
+      clickedWord.value = word;
+      forceUpdate.value++
     };
 
     onMounted(() => {
@@ -788,14 +665,12 @@ export default {
       queryLoading,
       queryError,
       translations,
-      dialog,
       clickedWord,
       grammarResults,
       grammarError,
       translationResults,
       translationError,
       groupedTranslations,
-      cycle,
       mobileView,
       expandedPanels,
       expandAll,
@@ -805,8 +680,8 @@ export default {
       loadingPercentage,
       resultsContainerRef,
       loadingResultsRef,
+      forceUpdate,
       scrollToResults,
-      onWordClick,
       handleKeyPress,
       checkTranslations,
       clearTranslations,
@@ -818,8 +693,7 @@ export default {
       sortedSections,
       sortedReferences,
       setSectionText,
-      goToDictionaryEntry,
-      goToGrammarEntry,
+      setClickedWord,
     };
   },
 };
