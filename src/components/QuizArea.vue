@@ -326,14 +326,7 @@
                 </v-row>
               </div>
               <div v-if="selectedQuizMode === 'authorbased'">
-                <v-card class="paper-card ma-3">
-                  <v-card-title v-if="!allAuthorWordsCorrect">The sentence will appear once words are done correctly</v-card-title>
-                  <h2>
-                    <span v-for="(word, index) in splitAuthorSentence" :key="index" :style="{ opacity: wordOpacity(word) + '%' }">{{ word }} </span>
-                  </h2>
-                  <v-divider v-if="allAuthorWordsCorrect"></v-divider>
-                  <h3 v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</h3>
-                </v-card>
+                <GrammarDetails :clickedWord="clickedWord" :forceUpdate="forceUpdate" />
                 <v-row v-if="!allAuthorWordsCorrect">
                   <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
                     <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
@@ -341,6 +334,23 @@
                     </v-btn>
                   </v-col>
                 </v-row>
+                <v-card class="paper-card ma-3">
+                  <v-card-title v-if="!allAuthorWordsCorrect" class="text-wrap white-space-normal break-words">
+                    Reveal words by answering correctly. Click the word for a declension attempt after 2 correct answers!
+                  </v-card-title>
+                  <h2>
+                    <span
+                        v-for="(word, index) in splitAuthorSentence"
+                        :key="index"
+                        @click="wordOpacity(word) > 50 && setClickedWord(word)"
+                        :style="{ opacity: wordOpacity(word) + '%', cursor: wordOpacity(word) > 50 ? 'pointer' : 'default' }"
+                    >
+                      {{ word }}
+                    </span>
+                  </h2>
+                  <v-divider v-if="allAuthorWordsCorrect"></v-divider>
+                  <h3 v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</h3>
+                </v-card>
               </div>
               <AnalyzeResults v-if="isComprehensive" :analyzeResults="analyzeResults" />
               <div style="margin: 5em auto;">
@@ -372,12 +382,14 @@ import {apolloClient} from "@/apollo";
 import { SokratesCheckBase, SokratesCreateQuestion, SokratesOptions } from "@/constants/graphql";
 import AnalyzeResults from "@/components/AnalyzeResults.vue";
 import Dialogue from "@/components/Dialogue.vue";
+import GrammarDetails from "@/components/GrammarDetails.vue";
 
 export default {
   name: 'QuizArea',
   components: {
     AnalyzeResults,
     Dialogue,
+    GrammarDetails,
   },
 
   setup() {
@@ -438,6 +450,9 @@ export default {
     const green = [29, 233, 182]; // RGB for green
     const orange = [255, 165, 0]; // RGB for orange
     const red = [233, 29, 29]; // RGB for red
+
+    const clickedWord = ref('');
+    const forceUpdate = ref(0);
 
     const progressColor = computed(() => {
       // Interpolate between green and orange, then orange and red
@@ -831,6 +846,11 @@ export default {
       getQuestion();
     };
 
+    const setClickedWord = (word) => {
+      clickedWord.value = word;
+      forceUpdate.value++
+    };
+
     const updateUrl = (query) => {
       const currentQuery = proxy.$route.query;
       const newQuery = { ...currentQuery, ...query };
@@ -934,6 +954,8 @@ export default {
       correctAnswersCount,
       numberOfQuestionsPlayed,
       progressColor,
+      clickedWord,
+      forceUpdate,
       resetFields,
       wordOpacity,
       getImageUrl,
@@ -951,6 +973,7 @@ export default {
       incrementSelectedSet,
       randomTheme,
       goToTextEntry,
+      setClickedWord,
     };
   },
 };
