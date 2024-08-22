@@ -170,7 +170,7 @@
                         @update:modelValue="onThemeSelect"
                     ></v-combobox>
                     <v-card-text v-if="maxSet > 0 && selectedTheme !== ''">
-                      <v-row class="mb-4" justify="space-between">
+                      <v-row class="mb-4" justify="space-between"  v-if="maxSet > 1">
                         <v-col class="text-left">
                           <span class="subheading font-weight-light me-1">Set </span>
                           <span class="text-h4 font-weight-light" v-text="selectedSet"></span>
@@ -179,7 +179,7 @@
                         </v-col>
                       </v-row>
                       <v-slider
-                          v-if="selectedQuizMode !== ''"
+                          v-if="selectedQuizMode !== '' && maxSet > 1"
                           class="my-5"
                           v-model="selectedSet"
                           :max="maxSet"
@@ -207,6 +207,23 @@
                           ></v-btn>
                         </template>
                       </v-slider>
+                      <v-row v-if="segments.length > 0">
+                        <v-col cols="12">
+                          <h3>Segments</h3>
+                        </v-col>
+                          <v-btn
+                              v-for="(segment, index) in segments"
+                              :key="index"
+                              class="quiz-button"
+                              :class="{ 'pulsate': selectedSegment === segment.name }"
+                              :color="selectedSegment === segment.name ? 'primary' : 'triadic'"
+                              @click="onSegmentSelect(segment.name)"
+                          >
+                            {{segment.name}}
+                          </v-btn>
+                      </v-row>
+                      <br>
+                      <br>
                             <v-switch
                                 v-if="selectedQuizMode === 'media'"
                                 v-model="showEnglishText"
@@ -225,6 +242,7 @@
                                 color="primary"
                                 label="History Table"
                             ></v-switch>
+                      <div v-if="selectedQuizMode !== 'dialogue'">
                       <v-card-subtitle>Seen {{Object.keys(correctAnswersCount).length}} out of {{numberOfItemsInSet}}:</v-card-subtitle>
                       <v-card-subtitle>Completed out of {{numberOfItemsInSet}}:</v-card-subtitle>
                       <v-progress-circular style="margin: 2em;" rotate="360" color="primary" width="8" size="72" :model-value="excludedWords.length/numberOfItemsInSet * 100">
@@ -242,6 +260,7 @@
                       >
                         {{ currentCorrectness }}%
                       </v-progress-circular>
+                      </div>
                     </v-card-text>
                   </div>
                 </v-expand-transition>
@@ -418,6 +437,7 @@ export default {
     const allAuthorWordsCorrect = ref(false);
     const excludedWords = ref([]);
     const options = ref([]);
+    const segments = ref([]);
     const correct = ref(false);
     const latestIndex = ref(0);
     const attemptMade = ref(false);
@@ -426,8 +446,8 @@ export default {
     const analyzeResults = ref([]);
     const lastPlayedWords = ref([]);
     const quizModes = [
-      { text: 'Media', value: 'media', icon: 'mdi-image' , header: 'Beginner Friendly'},
-      { text: 'Multiple Choice', value: 'multiplechoice', icon: 'mdi-order-bool-ascending-variant', header: 'Beginner'},
+      { text: 'Media', value: 'media', icon: 'mdi-image' , header: 'Foundational'},
+      { text: 'Multiple Choice', value: 'multiplechoice', icon: 'mdi-order-bool-ascending-variant', header: 'Novice'},
       { text: 'Author Based', value: 'authorbased', icon: 'mdi-book-open-page-variant', header: 'Intermediate'},
       { text: 'Dialogue', value: 'dialogue', icon: 'mdi-forum', header: 'Advanced'},
     ];
@@ -446,6 +466,7 @@ export default {
     const correctAnswersCount = ref({});
     const numberOfQuestionsPlayed = ref(0);
     const correctlyPlayed = ref(0);
+    const selectedSegment = ref('');
 
     const green = [29, 233, 182]; // RGB for green
     const orange = [255, 165, 0]; // RGB for orange
@@ -546,14 +567,68 @@ export default {
       });
     };
 
+    const onSegmentSelect = (item) => {
+      resetFields()
+      selectedSegment.value = item
+      getQuestion();
+    };
+
     const onThemeSelect = (item) => {
       resetFields();
 
       selectedTheme.value = item.name;
-      if (item && item.highestSet) {
-        maxSet.value = parseInt(item.highestSet, 10);
+
+      if (item && item.segments.length === 1 && item.segments[0].maxSet === 1) {
+        segments.value = item.segments;
+        selectedSegment.value = item.segments[0].name;
+        maxSet.value = 1;
+      }
+
+      if (item && item.segments.length === 1 && item.segments[0].maxSet > 1) {
+        segments.value = []
+        selectedSegment.value = ""
+        maxSet.value = item.segments[0].maxSet;
         selectedSet.value = Math.floor(Math.random() * maxSet.value) + 1;
       }
+
+      if (item && item.segments.length > 1) {
+        // Create a shallow copy of the segments array to avoid mutating the original array
+        const sortedSegments = [...item.segments].sort((a, b) => {
+          const hasDotA = a.name.includes('.');
+          const hasDotB = b.name.includes('.');
+
+          if (hasDotA && hasDotB) {
+            const parseSegmentName = (name) => {
+              return name.split('.').map(num => parseInt(num, 10));
+            };
+
+            const aParts = parseSegmentName(a.name);
+            const bParts = parseSegmentName(b.name);
+
+            // Compare each part of the segment names
+            for (let i = 0; i < Math.max(aParts.length, bParts.length); i++) {
+              const aVal = aParts[i] || 0;  // If a part is missing, treat it as 0
+              const bVal = bParts[i] || 0;
+              if (aVal < bVal) return -1;
+              if (aVal > bVal) return 1;
+            }
+
+            return 0;  // If all parts are equal
+          } else if (hasDotA) {
+            return -1;  // If only a has a dot, a comes first
+          } else if (hasDotB) {
+            return 1;   // If only b has a dot, b comes first
+          } else {
+            return a.name.localeCompare(b.name); // Lexicographical sort if no dots
+          }
+        });
+
+        // Assign the sorted copy back to the segments.value
+        segments.value = sortedSegments;
+        selectedSegment.value = sortedSegments[Math.floor(Math.random() * sortedSegments.length)].name;
+        maxSet.value = 1;
+      }
+
 
       getQuestion();
       scrollMeTo('quiz');
@@ -573,7 +648,7 @@ export default {
 
       watch(result, (newResult) => {
         if (newResult && newResult.options) {
-          const sortedOptions = [...newResult.options.aggregates].sort((a, b) => a.name.localeCompare(b.name));
+          const sortedOptions = [...newResult.options.themes].sort((a, b) => a.name.localeCompare(b.name));
           options.value = sortedOptions;
         }
       }, { immediate: true });
@@ -632,6 +707,7 @@ export default {
           theme: selectedTheme.value,
           quizType: selectedQuizMode.value,
           set: String(selectedSet.value),
+          segment: selectedSegment.value,
           excludeWords: uniqueArrayOfExcludes,
         },
         fetchPolicy: 'no-cache',
@@ -653,6 +729,7 @@ export default {
         quizType: selectedQuizMode.value,
         set: String(selectedSet.value),
         quizWord: quizWord.value,
+        segment: selectedSegment.value,
         answer: selectedAnswer.option,
         comprehensive: isComprehensive.value,
         fetchPolicy: 'no-cache',
@@ -872,11 +949,9 @@ export default {
         await getOptions(quizmode);
       }
       if (theme) {
-        selectedTheme.value = theme;
         options.value.forEach((option) => {
           if (option.name === theme) {
-            maxSet.value = parseInt(option.highestSet, 10);
-            selectedSet.value = 1;
+            onThemeSelect(option)
           }
         });
       }
@@ -956,6 +1031,9 @@ export default {
       progressColor,
       clickedWord,
       forceUpdate,
+      segments,
+      selectedSegment,
+      onSegmentSelect,
       resetFields,
       wordOpacity,
       getImageUrl,
@@ -1129,6 +1207,10 @@ h4 {
 
 .pulsate {
   animation: pulse-border 2s infinite;
+}
+
+.quiz-button {
+  margin: 1em;
 }
 
 </style>

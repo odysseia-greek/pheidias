@@ -3,6 +3,8 @@ FROM node:lts-alpine as builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm install
+ARG VERSION
+ENV VERSION=$VERSION
 COPY . .
 RUN npm run build
 

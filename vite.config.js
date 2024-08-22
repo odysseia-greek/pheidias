@@ -20,5 +20,6 @@ export default defineConfig({
     },
     define: {
         'process.env': {},
+        'process.env.VERSION': JSON.stringify(process.env.VERSION || 'unknown'),
     },
 });

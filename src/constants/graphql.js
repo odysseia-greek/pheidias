@@ -78,15 +78,18 @@ export const HerodotosCheck = gql`
 export const SokratesOptions = gql`
     query options($quizType: String!) {
       options(quizType: $quizType)  {
-        aggregates{
+        themes{
             name
-            highestSet
+            segments{
+                name
+                maxSet
+            }
         }
     }
 }`
 export const SokratesCreateQuestion = gql`
-    query quiz($set: String!, $quizType: String!, $theme: String!, $excludeWords: [String!]!) {
-      quiz(set: $set, quizType: $quizType, theme: $theme, excludeWords: $excludeWords)  {
+    query quiz($set: String!, $segment: String!, $quizType: String!, $theme: String!, $excludeWords: [String!]!) {
+      quiz(set: $set, segment: $segment, quizType: $quizType, theme: $theme, excludeWords: $excludeWords)  {
         ... on QuizResponse {
             numberOfItems
             quizItem
@@ -128,8 +131,8 @@ export const SokratesCreateQuestion = gql`
 }`
 
 export const SokratesCheckBase = gql`
-    query answer($set: String!, $quizType: String!, $theme: String!, $quizWord: String!, $answer: String!, $comprehensive: Boolean!) {
-      answer(set: $set, quizType: $quizType, theme: $theme, quizWord: $quizWord, answer: $answer, comprehensive: $comprehensive)  {
+    query answer($set: String!, $segment: String!, $quizType: String!, $theme: String!, $quizWord: String!, $answer: String!, $comprehensive: Boolean!) {
+      answer(set: $set, segment: $segment, quizType: $quizType, theme: $theme, quizWord: $quizWord, answer: $answer, comprehensive: $comprehensive)  {
         ... on ComprehensiveResponse {
             correct
             quizWord
