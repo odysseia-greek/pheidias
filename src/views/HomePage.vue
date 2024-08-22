@@ -12,7 +12,7 @@
               Start learning Ancient Greek Today
             </h2>
             <h3 class="text-h5 mb-2" style="margin-top: 5em; margin-left: 1em; margin-right: 1em; text-align: center">
-              Not sure where to start? Choose your level of Ancient Greek.
+              Choose your career in Ancient Greek
             </h3>
             <v-row class="d-flex justify-center text-center">
               <v-col cols="12" md="4">
@@ -34,7 +34,7 @@
             <v-icon class="mt-4" size="36">
               mdi-chevron-down
             </v-icon>
-            <p class="scroll-indicator" style="margin-top: 1em; text-align: center">Or scroll down for more info</p>
+            <p class="scroll-indicator" style="margin-top: 1em; text-align: center">Scroll down for more info about Odysseia-Greek</p>
           </div>
         </v-parallax>
 
@@ -76,7 +76,7 @@
                   <div :class="$vuetify.theme.textsecondary + ' text-h5 my-text-block'" style="margin-top:2em;">
                     <strong>New to Ancient Greek?</strong>
                     <br>
-                    Not sure where to begin? Scroll up and start your journey as a philosopher, sophist or demagogue. Or scroll down to see each component explained with a brief introduction.
+                    Not sure where to begin? Scroll up and start your journey as a philosopher (advanced), sophist (intermediate) or demagogue (beginner). This will take you to a quiz appropriate for your level. Or scroll down to see each component explained with a brief introduction.
                     <br><br>
                     Embark on your learning adventure with Odysseia-Greek and explore the beauty of Ancient Greek language and culture.
                   </div>
@@ -220,14 +220,14 @@ export default {
         longText: "That insisted questioning is why Sokrates is the name given to the Quiz section, it is a place to practise multiple choice word options taken from famous Greek works. Image based quizzes or even dialogue! It's the best place to start if you are new.",
       },
       {
-        title: "Dictionary",
+        title: "Texts",
         color: "triadic",
         src: '', // Will be loaded dynamically
-        image: 'alexander.webp',
-        link: "/dictionary",
-        subTitle: "Alexandros",
-        shortText: "The end of the earth was still not enough in his search and quest for glory. Few people loom as large as Alexander the Great in world history.",
-        longText: "His name is therefore linked to the dictionary component of Odysseia which is pretty self-explanatory. You can search for (partial) words here. Each keystroke will send a query to the backend and accents are ignored for easy searching. Support English, Ancient Greek or Dutch (Nederlands) as search parameters.",
+        image: 'alexandria.webp',
+        link: "/texts",
+        subTitle: "Herodotos",
+        shortText: "Known as the father of history Herodotos came from the city of Halicarnassus in what is now Western Turkey but then a thriving Greek city.",
+        longText: "What can be said with certainty is that his influence over Ancient Greek is vast. He is part of most textbooks that help students take their first steps into Ancient Greek. In the Herodotos or Text section of Odysseia you can translate texts. It will calculate how accurate your translation is compared to an official translation.",
       },
       {
         title: "Grammar",
@@ -240,14 +240,14 @@ export default {
         longText: "The fact that he wrote about Grammar and his text is known as a grammatical text makes Dionysios the logical name for the Grammar part of Odysseia. So what can you expect here? Dionysios will help you decline words and search for a possible meaning. The backend takes care of the heavy lifting for you. Currently nouns, verbs and participia are supported (but very much incomplete).",
       },
       {
-        title: "Texts",
+        title: "Dictionary",
         color: "triadic",
         src: '', // Will be loaded dynamically
-        image: 'alexandria.webp',
-        link: "/texts",
-        subTitle: "Herodotos",
-        shortText: "Known as the father of history Herodotos came from the city of Halicarnassus in what is now Western Turkey but then a thriving Greek city.",
-        longText: "What can be said with certainty is that his influence over Ancient Greek is vast. He is part of most textbooks that help students take their first steps into Ancient Greek. In the Herodotos or Text section of Odysseia you can translate texts. It will calculate how accurate your translation is compared to an official translation.",
+        image: 'alexander.webp',
+        link: "/dictionary",
+        subTitle: "Alexandros",
+        shortText: "The end of the earth was still not enough in his search and quest for glory. Few people loom as large as Alexander the Great in world history.",
+        longText: "His name is therefore linked to the dictionary component of Odysseia which is pretty self-explanatory. You can search for (partial) words here. Each keystroke will send a query to the backend and accents are ignored for easy searching. Support English, Ancient Greek or Dutch (Nederlands) as search parameters.",
       },
     ]);
 
@@ -305,6 +305,7 @@ export default {
   color: rgb(248, 248, 248) !important;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
+
 </style>
 
 
