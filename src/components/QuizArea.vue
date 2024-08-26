@@ -303,6 +303,14 @@
                   </p>
                 </v-card>
               </v-container>
+              <v-card class="mx-auto paper-card">
+                <v-card-text>
+                <v-card-title>Text Result for {{ extendedResultsAuthor.quizWord }}</v-card-title>
+                <v-card-subtitle>Translation: <strong>{{ extendedResultsAuthor.answer }}</strong></v-card-subtitle>
+                <v-card-subtitle>Word as it appears in the text:</v-card-subtitle>
+                <li v-for="(word, index) in extendedResultsAuthor.wordsInText" :key="index"><strong>{{ word }}</strong> </li>
+                </v-card-text>
+              </v-card>
               <br />
               <Dialogue
                   v-if="selectedQuizMode === 'dialogue'"
@@ -467,6 +475,7 @@ export default {
     const numberOfQuestionsPlayed = ref(0);
     const correctlyPlayed = ref(0);
     const selectedSegment = ref('');
+    const extendedResultsAuthor = ref({})
 
     const green = [29, 233, 182]; // RGB for green
     const orange = [255, 165, 0]; // RGB for orange
@@ -549,6 +558,12 @@ export default {
       splitAuthorSentence.value = [];
       wordOpacities.value = {};
       correctAnswersCount.value = {};
+    }
+
+    const extendedSearch = (result, answer) => {
+      extendedResultsAuthor.value.answer = answer;
+      extendedResultsAuthor.value.wordsInText = result.wordsInText
+      extendedResultsAuthor.value.quizWord = result.quizWord
     }
 
     const selectQuiz = (value) => {
@@ -768,6 +783,7 @@ export default {
               }
               correctAnswersCount.value[newResult.answer.quizWord] += 1;
 
+              extendedSearch(newResult.answer, selectedAnswer.option);
               newResult.answer.wordsInText.forEach(word => {
                   if (!wordOpacities.value[word]) {
                     wordOpacities.value[word] = 3;
@@ -1033,6 +1049,7 @@ export default {
       forceUpdate,
       segments,
       selectedSegment,
+      extendedResultsAuthor,
       onSegmentSelect,
       resetFields,
       wordOpacity,
@@ -1052,6 +1069,7 @@ export default {
       randomTheme,
       goToTextEntry,
       setClickedWord,
+      extendedSearch,
     };
   },
 };
