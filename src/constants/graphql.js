@@ -235,3 +235,16 @@ export const DictionaryEntry = gql`
         }
         }
 }`
+
+export const ConvertEntry = gql `
+    query convert($rootword: String!) {
+        convert(rootword: $rootword) {
+            greekWord
+            strongPassword
+            originalWord
+            similarWords{
+                greek
+                english
+            }
+        }
+}`

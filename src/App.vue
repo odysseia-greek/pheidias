@@ -105,6 +105,7 @@ export default {
       { title: 'Texts', path: '/texts', icon: 'mdi-bookshelf' },
       { title: 'Grammar', path: '/grammar', icon: 'mdi-feather' },
       { title: 'Dictionary', path: '/dictionary', icon: 'mdi-magnify' },
+      { title: 'Convert', path: '/convert', icon: 'mdi-microsoft-edge' },
     ]);
 
     const frontendVersion = ref(process.env.VERSION || 'unknown');
