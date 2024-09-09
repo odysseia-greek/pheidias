@@ -303,7 +303,7 @@
                   </p>
                 </v-card>
               </v-container>
-              <v-card class="mx-auto paper-card">
+              <v-card class="mx-auto paper-card" v-if="selectedQuizMode === 'authorbased'">
                 <v-card-text>
                 <v-card-title>Text Result for {{ extendedResultsAuthor.quizWord }}</v-card-title>
                 <v-card-subtitle>Translation: <strong>{{ extendedResultsAuthor.answer }}</strong></v-card-subtitle>
