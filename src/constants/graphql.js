@@ -109,7 +109,14 @@ export const SokratesCreateQuestion = gql`
                       option
                   }
               }
-
+              grammarQuiz{
+                  correctAnswer
+                  extraInformation
+                  wordInText
+                  options{
+                      option
+                  }
+              }
           }
         ... on DialogueQuiz {
             quizType

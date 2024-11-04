@@ -298,8 +298,11 @@
                       </v-icon>
                     </v-btn>
                   </p>
-                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect">
+                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && !grammarQuizMode">
                     Select the correct meaning.
+                  </p>
+                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && grammarQuizMode">
+                    Select the correct grammatical form.
                   </p>
                 </v-card>
               </v-container>
@@ -309,6 +312,8 @@
                 <v-card-subtitle>Translation: <strong>{{ extendedResultsAuthor.answer }}</strong></v-card-subtitle>
                 <v-card-subtitle>Word as it appears in the text:</v-card-subtitle>
                 <li v-for="(word, index) in extendedResultsAuthor.wordsInText" :key="index"><strong>{{ word }}</strong> </li>
+                <br v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation">
+                <v-card-subtitle v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation">Extra Information for Grammar Question: <strong>{{grammarQuizzes[currentGrammarIndex].extraInformation}}</strong></v-card-subtitle>
                 </v-card-text>
               </v-card>
               <br />
@@ -354,7 +359,16 @@
               </div>
               <div v-if="selectedQuizMode === 'authorbased'">
                 <GrammarDetails :clickedWord="clickedWord" :forceUpdate="forceUpdate" />
-                <v-row v-if="!allAuthorWordsCorrect">
+
+                <v-row v-if="!allAuthorWordsCorrect && grammarQuizMode">
+                <v-col v-for="item in grammarQuizzes[currentGrammarIndex].options" :key="item.option" cols="12" sm="6">
+                  <v-btn @click="checkGrammarAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
+                    <span>{{ truncateText(item.option) }}</span>
+                  </v-btn>
+                </v-col>
+                  </v-row>
+
+                <v-row v-if="!allAuthorWordsCorrect && !grammarQuizMode">
                   <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
                     <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
                       <span>{{ truncateText(item.option) }}</span>
@@ -476,6 +490,9 @@ export default {
     const correctlyPlayed = ref(0);
     const selectedSegment = ref('');
     const extendedResultsAuthor = ref({})
+    const grammarQuizzes = ref ([])
+    const grammarQuizMode = ref(false)
+    const currentGrammarIndex = ref(0)
 
     const green = [29, 233, 182]; // RGB for green
     const orange = [255, 165, 0]; // RGB for orange
@@ -558,6 +575,7 @@ export default {
       splitAuthorSentence.value = [];
       wordOpacities.value = {};
       correctAnswersCount.value = {};
+      grammarQuizzes.value = [];
     }
 
     const extendedSearch = (result, answer) => {
@@ -700,12 +718,63 @@ export default {
           answers.value = array;
         });
         quizWord.value = newResult.quiz.quiz.quizItem;
+        if (newResult.quiz.grammarQuiz.length > 0) {
+          grammarQuizzes.value = newResult.quiz.grammarQuiz
+        } else {
+          grammarQuizzes.value = []
+        }
       } else {
         quizWord.value = null;
         dialogueOptions.value = newResult.quiz.dialogue;
         dialogueContent.value = newResult.quiz.content;
       }
     };
+
+    const checkGrammarAnswer = async (answer) => {
+      numberOfQuestionsPlayed.value++
+      if (answer.option === grammarQuizzes.value[currentGrammarIndex.value].correctAnswer) {
+        answerStates[answer.option] = {
+          selected: true,
+          isCorrect: true,
+        };
+        correctlyPlayed.value++
+        showNextQuestionIndicator.value = true
+        setTimeout(() => {
+          if (grammarQuizzes.value.length > currentGrammarIndex.value+1) {
+            currentGrammarIndex.value++
+            quizWord.value = grammarQuizzes.value[currentGrammarIndex.value].wordInText;
+            showNextQuestionIndicator.value = false
+            answerStates[answer.option] = {
+              selected: false,
+              isCorrect: true,
+            };
+          } else {
+            showNextQuestionIndicator.value = false
+            grammarQuizMode.value = false
+            grammarQuizzes.value = [];
+            currentGrammarIndex.value = 0;
+            answerStates[answer.option] = {
+              selected: false,
+              isCorrect: true,
+            };
+            getQuestion()
+          }
+        }, 1250);
+      } else {
+        answerStates[answer.option] = {
+          selected: true,
+          isCorrect: false,
+        };
+        setTimeout(() => {
+          answerStates[answer.option] = {
+            selected: false,
+            isCorrect: false,
+          };
+        }, 800)
+      }
+
+      currentCorrectness.value = Math.round(correctlyPlayed.value/numberOfQuestionsPlayed.value*100);
+    }
 
     const getQuestion = async () => {
       attemptMade.value = false;
@@ -776,7 +845,6 @@ export default {
 
           if (newResult.answer.__typename === 'AuthorBasedAnswer') {
             // Handle special case for AuthorBasedAnswer
-
             if (correct.value) {
               if (!correctAnswersCount.value[newResult.answer.quizWord]) {
                 correctAnswersCount.value[newResult.answer.quizWord] = 0;
@@ -818,7 +886,19 @@ export default {
               }
             });
 
+
+
             showNextQuestionIndicator.value = true;
+
+            if (grammarQuizzes.value.length > 0 && correct.value) {
+              setTimeout(() => {
+                grammarQuizMode.value = true
+                quizWord.value = grammarQuizzes.value[currentGrammarIndex.value].wordInText;
+                showNextQuestionIndicator.value = false;
+              }, 1250);
+
+              return
+            }
 
             setTimeout(() => {
               getQuestion()
@@ -1050,6 +1130,9 @@ export default {
       segments,
       selectedSegment,
       extendedResultsAuthor,
+      grammarQuizzes,
+      grammarQuizMode,
+      currentGrammarIndex,
       onSegmentSelect,
       resetFields,
       wordOpacity,
@@ -1070,6 +1153,7 @@ export default {
       goToTextEntry,
       setClickedWord,
       extendedSearch,
+      checkGrammarAnswer,
     };
   },
 };
