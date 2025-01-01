@@ -132,7 +132,7 @@
                   ></v-btn>
                 </v-toolbar>
                 <v-expand-transition>
-                  <div v-if="!minimized">
+                  <div v-if="!minimized" ref="selectThemeRef">
                     <br><br>
 
                     <v-card-title class="ma-6">
@@ -243,6 +243,18 @@
                                 label="History Table"
                             ></v-switch>
                       <div v-if="selectedQuizMode !== 'dialogue'">
+                        <v-slider
+                            :label="'Answers needed before marked correct: ' + numberOfAnswersNeeded"
+                            class="my-5"
+                            v-model="numberOfAnswersNeeded"
+                            :min="1"
+                            :max="4"
+                            step="1"
+                            color="primary"
+                            track-color="accent"
+                            thumb-color="primary"
+                            show-ticks
+                        ></v-slider>
                       <v-card-subtitle>Seen {{Object.keys(correctAnswersCount).length}} out of {{numberOfItemsInSet}}:</v-card-subtitle>
                       <v-card-subtitle>Completed out of {{numberOfItemsInSet}}:</v-card-subtitle>
                       <v-progress-circular style="margin: 2em;" rotate="360" color="primary" width="8" size="72" :model-value="excludedWords.length/numberOfItemsInSet * 100">
@@ -270,7 +282,7 @@
                  v-if="selectedTheme !== ''"
                  class="quiz-container"
             >
-              <v-container v-if="quizWord" class="quiz-container">
+              <v-container v-if="quizWord && Object.keys(correctAnswersCount).length !== numberOfItemsInSet" class="quiz-container">
                 <v-card class="quiz-word-container">
                   <h2 class="quiz-word" v-if="!showNextQuestionIndicator">{{ quizWord }}</h2>
                   <div v-if="showNextQuestionIndicator" class="text-center mb-4">
@@ -326,37 +338,101 @@
                   :selectedSet="selectedSet"
               />
               <v-container v-if="selectedQuizMode === 'media'" class="inner-quiz-area">
-                <v-row>
-                  <v-col v-for="item in answers" :key="item.option" cols="6">
-                    <v-card
-                        flat
-                        @click="checkAnswer(item);"
-                        :class="{
-                                        'card-correct': answerStates[item.option]?.isCorrect,
-                                        'card-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected
-                                        }"
-                    >
-                      <v-img
-                          :src="loadedImages[item.imageUrl] || ''"
-                          class="mb-2"
-                          aspect-ratio="1"
-                      >
-                      </v-img>
-                      <v-card-text v-if="showEnglishText" class="text-center">{{ item.option }}</v-card-text>
-                    </v-card>
-                  </v-col>
-                </v-row>
-              </v-container>
-              <!-- Text Buttons for Other Quiz Modes -->
-              <div v-if="selectedQuizMode === 'multiplechoice'">
-                <v-row>
-                  <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
-                    <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
-                      <span>{{ truncateText(item.option) }}</span>
+                <!-- Show "Well Done!" message and randomize button if the quiz is completed -->
+                <v-container v-if="Object.keys(correctAnswersCount).length === numberOfItemsInSet">
+                  <v-card flat class="mb-3 paper-card">
+                    <v-card-text>
+                      <h3>🎉 Well Done! You have finished this section! 🎉</h3>
+                      <p>Select a new quiz or click the button below to randomize.</p>
+                    </v-card-text>
+                    <!-- Randomize button -->
+                    <v-btn
+                        icon="mdi-shuffle-variant"
+                        variant="text"
+                        @click="randomTheme"
+                        v-if="selectedQuizMode !== '' && selectedQuizMode !== 'dialogue'"
+                    ></v-btn>
+                    <!-- Arrow up button -->
+                    <v-btn icon color="primary" class="mt-3" @click="scrollMeTo('selectTheme')">
+                      <v-icon>mdi-arrow-up</v-icon>
                     </v-btn>
-                  </v-col>
-                </v-row>
+                  </v-card>
+                </v-container>
+
+                <!-- Quiz area -->
+                <v-container v-else>
+                  <v-row>
+                    <v-col v-for="item in answers" :key="item.option" cols="6">
+                      <v-card
+                          flat
+                          @click="checkAnswer(item);"
+                          :class="{
+            'card-correct': answerStates[item.option]?.isCorrect,
+            'card-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected
+          }"
+                      >
+                        <v-img
+                            :src="loadedImages[item.imageUrl] || ''"
+                            class="mb-2"
+                            aspect-ratio="1"
+                        ></v-img>
+                        <v-card-text v-if="showEnglishText" class="text-center">
+                          {{ item.option }}
+                        </v-card-text>
+                      </v-card>
+                    </v-col>
+                  </v-row>
+                </v-container>
+              </v-container>
+
+              <!-- Text Buttons for Multiple Choice Quiz -->
+              <div v-if="selectedQuizMode === 'multiplechoice'">
+                <!-- Show "Well Done!" message and randomize button if the quiz is completed -->
+                <v-container v-if="Object.keys(correctAnswersCount).length === numberOfItemsInSet">
+                  <v-card flat class="mb-3 paper-card">
+                    <v-card-text>
+                      <h3>🎉 Well Done! You have finished this section! 🎉</h3>
+                      <p>Select a new quiz or click the button below to randomize.</p>
+                    </v-card-text>
+                    <!-- Randomize button -->
+                    <v-btn
+                        icon="mdi-shuffle-variant"
+                        variant="text"
+                        @click="randomTheme"
+                        v-if="selectedQuizMode !== '' && selectedQuizMode !== 'dialogue'"
+                    ></v-btn>
+                    <!-- Arrow up button -->
+                    <v-btn icon color="primary" class="mt-3" @click="scrollMeTo('selectTheme')">
+                      <v-icon>mdi-arrow-up</v-icon>
+                    </v-btn>
+                  </v-card>
+                </v-container>
+
+                <!-- Multiple Choice Quiz Area -->
+                <v-container v-else>
+                  <v-row>
+                    <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
+                      <v-btn
+                          @click="checkAnswer(item);"
+                          class="ma-1"
+                          :class="{
+            'answer-correct': answerStates[item.option]?.isCorrect,
+            'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected
+          }"
+                          :color="answerStates[item.option]?.selected
+            ? answerStates[item.option]?.isCorrect
+              ? '#1de9b6'
+              : '#e9501d'
+            : 'triadic'"
+                          block
+                      >
+                        <span>{{ truncateText(item.option) }}</span>
+                      </v-btn>
+                    </v-col>
+                  </v-row>
+                </v-container>
               </div>
+
               <div v-if="selectedQuizMode === 'authorbased'">
                 <GrammarDetails :clickedWord="clickedWord" :forceUpdate="forceUpdate" />
 
@@ -479,6 +555,7 @@ export default {
     ];
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
     const quizContainerRef = ref();
+    const selectThemeRef = ref();
     const loadedImages = reactive({});
     const images = import.meta.glob('../assets/icons/*.webp');
     const showInfoBar = ref(true);
@@ -487,12 +564,14 @@ export default {
     const currentCorrectness = ref(100);
     const correctAnswersCount = ref({});
     const numberOfQuestionsPlayed = ref(0);
+    const numberOfAnswersNeeded = ref(3);
     const correctlyPlayed = ref(0);
     const selectedSegment = ref('');
     const extendedResultsAuthor = ref({})
     const grammarQuizzes = ref ([])
     const grammarQuizMode = ref(false)
     const currentGrammarIndex = ref(0)
+
 
     const green = [29, 233, 182]; // RGB for green
     const orange = [255, 165, 0]; // RGB for orange
@@ -559,9 +638,14 @@ export default {
     };
 
     const scrollMeTo = (refName) => {
+      console.log(refName);
       nextTick(() => {
         if (refName === 'quiz' && quizContainerRef.value) {
           quizContainerRef.value.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        if (refName === 'selectTheme' && selectThemeRef.value) {
+          selectThemeRef.value.scrollIntoView({ behavior: 'smooth' });
         }
       });
     };
@@ -854,9 +938,11 @@ export default {
               extendedSearch(newResult.answer, selectedAnswer.option);
               newResult.answer.wordsInText.forEach(word => {
                   if (!wordOpacities.value[word]) {
-                    wordOpacities.value[word] = 3;
+                    wordOpacities.value[word] = numberOfAnswersNeeded.value;
                   }
-                  wordOpacities.value[word] += 33;
+                // Calculate and round the increment to the nearest number
+                const increment = Math.round(100 / numberOfAnswersNeeded.value);
+                wordOpacities.value[word] += increment;
                   if (wordOpacities.value[word] >= 100) {
                     wordOpacities.value[word] = 100;
                      if (!excludedWords.value.includes(newResult.answer.quizWord)) {
@@ -921,7 +1007,7 @@ export default {
               }
               correctAnswersCount.value[newResult.answer.quizWord] += 1;
 
-              if (correctAnswersCount.value[newResult.answer.quizWord] >= 3) {
+              if (correctAnswersCount.value[newResult.answer.quizWord] >= numberOfAnswersNeeded.value) {
                 if (!excludedWords.value.includes(newResult.answer.quizWord)) {
                   excludedWords.value.push(newResult.answer.quizWord);
                 }
@@ -950,10 +1036,6 @@ export default {
             if (correct.value) {
               showNextQuestionIndicator.value = true;
               setTimeout(() => {
-                if (excludedWords.value.length === numberOfItemsInSet.value) {
-                  excludedWords.value = [];
-                  correctAnswersCount.value = {};
-                }
                 getQuestion()
                 showNextQuestionIndicator.value = false;
               }, 2000);
@@ -1109,6 +1191,7 @@ export default {
       headers,
       isTouchDevice,
       quizContainerRef,
+      selectThemeRef,
       analyzeResults,
       dialogueContent,
       loadedImages,
@@ -1133,6 +1216,7 @@ export default {
       grammarQuizzes,
       grammarQuizMode,
       currentGrammarIndex,
+      numberOfAnswersNeeded,
       onSegmentSelect,
       resetFields,
       wordOpacity,
