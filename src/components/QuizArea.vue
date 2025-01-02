@@ -6,7 +6,7 @@
     >
       <v-main>
         <div class="text-center">
-          <div style="margin-bottom:2em;">
+          <div style="margin-bottom: 2em">
             <v-expansion-panels color="secondary" v-if="showInfoBar">
               <v-expansion-panel>
                 <v-expansion-panel-title>
@@ -14,91 +14,127 @@
                   Don't know what to do?
                   <v-spacer></v-spacer>
                   <v-btn
-                  icon="mdi-close"
-                  variant="text"
-                  @click="showInfoBar = !showInfoBar"
-                  class="mx-4"
+                      icon="mdi-close"
+                      variant="text"
+                      @click="showInfoBar = !showInfoBar"
+                      class="mx-4"
                   >
                   </v-btn>
                 </v-expansion-panel-title>
                 <v-expansion-panel-text>
-                <v-stepper :items="['Select Quiz Type', 'Select Theme', 'Select Set', 'Other Options']">
-                  <template v-slot:item.1>
-                    <v-card class="mb-12 text-left" color="white">
-                      First select the quiz type you want to be play.
-                      <br>
-                      <br>
-                      <ul>
-                        <li>
-                          <strong>Dialogue:</strong> converse in Ancient Greek with Ancient Greeks! This mode allows you to recreate dialogue taken from great works
-                          of literature. You are asked to put the conversation in the right order. For advanced learners of Ancient Greek.
-                        </li>
-                        <li>
-                          <strong>Author:</strong> Learn words and see them placed in an actual Greek sentence. Most suited for those looking to learn words from a specific text or intermediate learners.
-                        </li>
-                        <li>
-                          <strong>Media:</strong> this quiz type has images and (in the future) audio for you to have an interactive experience. Easiest mode to start with.
-                        </li>
-                        <li>
-                          <strong>Mutliple Choice:</strong> multiple choice questions can be done in Dutch or English.
-                        </li>
-                        <br>
-                        <br>
-                        <strong>Start with Media if you are new to Ancient Greek</strong>
-                      </ul>
-                      <br>
-                    </v-card>
-                  </template>
-                  <template v-slot:item.2>
-                    <v-card class="mb-12 text-left" color="white">
-                      Themes represent a work from antiquity or a category of questions such as Basic or Daily Life.
-                      <br>
-                      <br>
-                      For example: <strong>Aeschylus - Agamemnon</strong> or <strong>Homer - Odyssey</strong>. Dialogue or multiple choice will be taken from these works.
-                      <br>
-                      <br>
-                      <v-icon>mdi-shuffle-variant</v-icon>
-                      Selects a random theme if you are unsure what text you want to do (not available in dialogue mode).
-                    </v-card>
-                  </template>
-                  <template v-slot:item.3>
-                    <v-card class="mb-12 text-left" color="white">
-                      A set is a number of quiz items within a quiz. Each set consists of <strong>20</strong> words that will randomly be presented as a quiz.
-                      <br>
-                      <br>
-                      Some sets might be a bit smaller or larger than 20 because the total number of quiz words is larger than x * 20.
-                      <br>
-                      <v-icon>mdi-skip-next</v-icon>
-                      Creates the next quiz if you want to skip a certain word.
-                      <br>
-                      <br>
-                      In author mode, sets are divided by word size and whenever possible into nouns and verbs.
-                    </v-card>
-                  </template>
-                  <template v-slot:item.4>
-                    <v-card class="mb-12 text-left" color="white">
-                      Additional options to turn on and off when you have selected a mode, theme and if available a set.
-                      <br>
-                      <br>
-                      <ul>
-                        <li>
-                          <strong>Show Text With Images:</strong> when using media mode, the images can be appended with an English test.
-                        </li>
-                        <li>
-                          <strong>Extended Mode:</strong> available in media, and author-based modes. This will show words that are similar and where in the text you can find a word in all its known declensions.
-                          <br>
-                          The known declensions are based on words found in the grammar component <a href="/grammar">link</a>.
-                        </li>
-                        <li>
-                          <strong>Show Translation:</strong> adds translations in Dialogue mode.
-                        </li>
-                        <li>
-                          <strong>Show History Table:</strong> in non-dialogue quiz modes, you can see the answers you have given in this history table, making it easier to remember previous entries.
-                        </li>
-                      </ul>
-                    </v-card>
-                  </template>
-                </v-stepper>
+                  <v-stepper
+                      :items="['Select Quiz Type', 'Select Theme', 'Select Set', 'Other Options']"
+                  >
+                    <template v-slot:item.1>
+                      <v-card class="mb-12 text-left" color="white">
+                        First select the quiz type you want to be play.
+                        <br />
+                        <br />
+                        <ul>
+                          <li>
+                            <strong>Dialogue:</strong> converse in Ancient Greek
+                            with Ancient Greeks! This mode allows you to
+                            recreate dialogue taken from great works of
+                            literature. You are asked to put the conversation in
+                            the right order. For advanced learners of Ancient
+                            Greek.
+                          </li>
+                          <li>
+                            <strong>Author:</strong> Learn words and see them
+                            placed in an actual Greek sentence. Most suited for
+                            those looking to learn words from a specific text or
+                            intermediate learners.
+                          </li>
+                          <li>
+                            <strong>Media:</strong> this quiz type has images
+                            and (in the future) audio for you to have an
+                            interactive experience. Easiest mode to start with.
+                          </li>
+                          <li>
+                            <strong>Mutliple Choice:</strong> multiple choice
+                            questions can be done in Dutch or English.
+                          </li>
+                          <br />
+                          <br />
+                          <strong
+                          >Start with Media if you are new to Ancient
+                            Greek</strong
+                          >
+                        </ul>
+                        <br />
+                      </v-card>
+                    </template>
+                    <template v-slot:item.2>
+                      <v-card class="mb-12 text-left" color="white">
+                        Themes represent a work from antiquity or a category of
+                        questions such as Basic or Daily Life.
+                        <br />
+                        <br />
+                        For example: <strong>Aeschylus - Agamemnon</strong> or
+                        <strong>Homer - Odyssey</strong>. Dialogue or multiple
+                        choice will be taken from these works.
+                        <br />
+                        <br />
+                        <v-icon>mdi-shuffle-variant</v-icon>
+                        Selects a random theme if you are unsure what text you
+                        want to do (not available in dialogue mode).
+                      </v-card>
+                    </template>
+                    <template v-slot:item.3>
+                      <v-card class="mb-12 text-left" color="white">
+                        A set is a number of quiz items within a quiz. Each set
+                        consists of <strong>20</strong> words that will randomly
+                        be presented as a quiz.
+                        <br />
+                        <br />
+                        Some sets might be a bit smaller or larger than 20
+                        because the total number of quiz words is larger than x
+                        * 20.
+                        <br />
+                        <v-icon>mdi-skip-next</v-icon>
+                        Creates the next quiz if you want to skip a certain
+                        word.
+                        <br />
+                        <br />
+                        In author mode, sets are divided by word size and
+                        whenever possible into nouns and verbs.
+                      </v-card>
+                    </template>
+                    <template v-slot:item.4>
+                      <v-card class="mb-12 text-left" color="white">
+                        Additional options to turn on and off when you have
+                        selected a mode, theme and if available a set.
+                        <br />
+                        <br />
+                        <ul>
+                          <li>
+                            <strong>Show Text With Images:</strong> when using
+                            media mode, the images can be appended with an
+                            English test.
+                          </li>
+                          <li>
+                            <strong>Extended Mode:</strong> available in media,
+                            and author-based modes. This will show words that
+                            are similar and where in the text you can find a
+                            word in all its known declensions.
+                            <br />
+                            The known declensions are based on words found in
+                            the grammar component <a href="/grammar">link</a>.
+                          </li>
+                          <li>
+                            <strong>Show Translation:</strong> adds translations
+                            in Dialogue mode.
+                          </li>
+                          <li>
+                            <strong>Show History Table:</strong> in non-dialogue
+                            quiz modes, you can see the answers you have given
+                            in this history table, making it easier to remember
+                            previous entries.
+                          </li>
+                        </ul>
+                      </v-card>
+                    </template>
+                  </v-stepper>
                 </v-expansion-panel-text>
               </v-expansion-panel>
             </v-expansion-panels>
@@ -133,11 +169,9 @@
                 </v-toolbar>
                 <v-expand-transition>
                   <div v-if="!minimized" ref="selectThemeRef">
-                    <br><br>
+                    <br /><br />
 
-                    <v-card-title class="ma-6">
-                      Choose your Mode
-                    </v-card-title>
+                    <v-card-title class="ma-6"> Choose your Mode </v-card-title>
                     <p class="ma-4">
                       Ἀρχὴ πάσης πράξεως ἐστὶν ἡ τοῦ αἱρεῖσθαι ἀρχή.
                       <v-divider></v-divider>
@@ -145,17 +179,28 @@
                     </p>
 
                     <v-row>
-                      <v-col v-for="(quiz, index) in quizModes" :key="index" cols="12" sm="6">
+                      <v-col
+                          v-for="(quiz, index) in quizModes"
+                          :key="index"
+                          cols="12"
+                          sm="6"
+                      >
                         <v-card-subtitle class="ma-6">
                           {{ quiz.header}}
                         </v-card-subtitle>
-                        <v-btn class="ma-1 quiz-button" :class="{ 'pulsate': selectedQuizMode === '' }" :color="selectedQuizMode === quiz.value ? 'primary' : 'triadic'" block @click="selectQuiz(quiz.value)">
+                        <v-btn
+                            class="ma-1 quiz-button"
+                            :class="{ 'pulsate': selectedQuizMode === '' }"
+                            :color="selectedQuizMode === quiz.value ? 'primary' : 'triadic'"
+                            block
+                            @click="selectQuiz(quiz.value)"
+                        >
                           <v-icon left>{{ quiz.icon }}</v-icon>
                           {{ quiz.text }}
                         </v-btn>
                       </v-col>
                     </v-row>
-                    <br><br>
+                    <br /><br />
                     <v-combobox
                         v-if="selectedQuizMode !== ''"
                         class="mt-5"
@@ -170,12 +215,26 @@
                         @update:modelValue="onThemeSelect"
                     ></v-combobox>
                     <v-card-text v-if="maxSet > 0 && selectedTheme !== ''">
-                      <v-row class="mb-4" justify="space-between"  v-if="maxSet > 1">
+                      <v-row
+                          class="mb-4"
+                          justify="space-between"
+                          v-if="maxSet > 1"
+                      >
                         <v-col class="text-left">
-                          <span class="subheading font-weight-light me-1">Set </span>
-                          <span class="text-h4 font-weight-light" v-text="selectedSet"></span>
-                          <span class="subheading font-weight-light me-1"> of </span>
-                          <span class="text-h4 font-weight-light" v-text="maxSet"></span>
+                          <span class="subheading font-weight-light me-1"
+                          >Set
+                          </span>
+                          <span
+                              class="text-h4 font-weight-light"
+                              v-text="selectedSet"
+                          ></span>
+                          <span class="subheading font-weight-light me-1">
+                            of
+                          </span>
+                          <span
+                              class="text-h4 font-weight-light"
+                              v-text="maxSet"
+                          ></span>
                         </v-col>
                       </v-row>
                       <v-slider
@@ -211,40 +270,41 @@
                         <v-col cols="12">
                           <h3>Segments</h3>
                         </v-col>
-                          <v-btn
-                              v-for="(segment, index) in segments"
-                              :key="index"
-                              class="quiz-button"
-                              :class="{ 'pulsate': selectedSegment === segment.name }"
-                              :color="selectedSegment === segment.name ? 'primary' : 'triadic'"
-                              @click="onSegmentSelect(segment.name)"
-                          >
-                            {{segment.name}}
-                          </v-btn>
+                        <v-btn
+                            v-for="(segment, index) in segments"
+                            :key="index"
+                            class="quiz-button"
+                            :class="{ 'pulsate': selectedSegment === segment.name }"
+                            :color="selectedSegment === segment.name ? 'primary' : 'triadic'"
+                            @click="onSegmentSelect(segment.name)"
+                        >
+                          {{segment.name}}
+                        </v-btn>
                       </v-row>
-                      <br>
-                      <br>
-                            <v-switch
-                                v-if="selectedQuizMode === 'media'"
-                                v-model="showEnglishText"
-                                color="primary"
-                                label="Text with images"
-                            ></v-switch>
-                            <v-switch
-                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice'"
-                                v-model="isComprehensive"
-                                color="primary"
-                                label="Extended Results"
-                            ></v-switch>
-                            <v-switch
-                                v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice' || selectedQuizMode === 'authorbased'"
-                                v-model="showHistoryIndicator"
-                                color="primary"
-                                label="History Table"
-                            ></v-switch>
+                      <br />
+                      <br />
+                      <v-switch
+                          v-if="selectedQuizMode === 'media'"
+                          v-model="showEnglishText"
+                          color="primary"
+                          label="Text with images"
+                      ></v-switch>
+                      <v-switch
+                          v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice'"
+                          v-model="isComprehensive"
+                          color="primary"
+                          label="Extended Results"
+                      ></v-switch>
+                      <v-switch
+                          v-if="selectedQuizMode === 'media' || selectedQuizMode === 'multiplechoice' || selectedQuizMode === 'authorbased'"
+                          v-model="showHistoryIndicator"
+                          color="primary"
+                          label="History Table"
+                      ></v-switch>
                       <div v-if="selectedQuizMode !== 'dialogue'">
+                        <p>Correct answers needed before marked complete</p>
                         <v-slider
-                            :label="'Answers needed before marked correct: ' + numberOfAnswersNeeded"
+                            :label="numberOfAnswersNeeded"
                             class="my-5"
                             v-model="numberOfAnswersNeeded"
                             :min="1"
@@ -255,47 +315,89 @@
                             thumb-color="primary"
                             show-ticks
                         ></v-slider>
-                      <v-card-subtitle>Seen {{Object.keys(correctAnswersCount).length}} out of {{numberOfItemsInSet}}:</v-card-subtitle>
-                      <v-card-subtitle>Completed out of {{numberOfItemsInSet}}:</v-card-subtitle>
-                      <v-progress-circular style="margin: 2em;" rotate="360" color="primary" width="8" size="72" :model-value="excludedWords.length/numberOfItemsInSet * 100">
-                        {{ Math.round(excludedWords.length/numberOfItemsInSet * 100) }}%
-                      </v-progress-circular>
-                      <v-divider></v-divider>
-                      <v-card-subtitle>Total played: {{numberOfQuestionsPlayed}}</v-card-subtitle>
-                      <v-progress-circular
-                          style="margin: 2em;"
-                          rotate="360"
-                          :color="progressColor"
-                          width="8"
-                          size="72"
-                          :model-value="currentCorrectness"
-                      >
-                        {{ currentCorrectness }}%
-                      </v-progress-circular>
+                        <v-card-subtitle
+                        >Seen {{Object.keys(correctAnswersCount).length}} out
+                          of {{numberOfItemsInSet}}:</v-card-subtitle
+                        >
+                        <v-card-subtitle
+                        >Completed out of
+                          {{numberOfItemsInSet}}:</v-card-subtitle
+                        >
+                        <v-progress-circular
+                            style="margin: 2em"
+                            rotate="360"
+                            color="primary"
+                            width="8"
+                            size="72"
+                            :model-value="excludedWords.length/numberOfItemsInSet * 100"
+                        >
+                          {{ Math.round(excludedWords.length/numberOfItemsInSet * 100)
+                          }}%
+                        </v-progress-circular>
+                        <v-divider></v-divider>
+                        <v-card-subtitle
+                        >Total played:
+                          {{numberOfQuestionsPlayed}}</v-card-subtitle
+                        >
+                        <v-progress-circular
+                            style="margin: 2em"
+                            rotate="360"
+                            :color="progressColor"
+                            width="8"
+                            size="72"
+                            :model-value="currentCorrectness"
+                        >
+                          {{ currentCorrectness }}%
+                        </v-progress-circular>
                       </div>
                     </v-card-text>
                   </div>
                 </v-expand-transition>
               </v-card>
             </v-container>
-            <div ref="quizContainerRef"
-                 v-if="selectedTheme !== ''"
-                 class="quiz-container"
+            <div
+                ref="quizContainerRef"
+                v-if="selectedTheme !== ''"
+                class="quiz-container"
             >
-              <v-container v-if="quizWord && Object.keys(correctAnswersCount).length !== numberOfItemsInSet" class="quiz-container">
+              <v-container
+                  v-if="quizWord && excludedWords.length !== numberOfItemsInSet"
+                  class="quiz-container"
+              >
                 <v-card class="quiz-word-container">
-                  <h2 class="quiz-word" v-if="!showNextQuestionIndicator">{{ quizWord }}</h2>
-                  <div v-if="showNextQuestionIndicator" class="text-center mb-4">
-                    <v-progress-circular style="margin-bottom: 2em; margin-top: 2em;" indeterminate color="primary" width="8" size="72"></v-progress-circular>
+                  <h2 class="quiz-word" v-if="!showNextQuestionIndicator">
+                    {{ quizWord }}
+                  </h2>
+                  <div
+                      v-if="showNextQuestionIndicator"
+                      class="text-center mb-4"
+                  >
+                    <v-progress-circular
+                        style="margin-bottom: 2em; margin-top: 2em"
+                        indeterminate
+                        color="primary"
+                        width="8"
+                        size="72"
+                    ></v-progress-circular>
                   </div>
-                  <p class="quiz-instructions" v-if="selectedQuizMode === 'media'">
+                  <p
+                      class="quiz-instructions"
+                      v-if="selectedQuizMode === 'media'"
+                  >
                     Match the word to the image.
                   </p>
-                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'multiplechoice'">
+                  <p
+                      class="quiz-instructions"
+                      v-else-if="selectedQuizMode === 'multiplechoice'"
+                  >
                     Select the correct meaning.
                   </p>
-                  <p class="quiz-instructions" v-else-if="allAuthorWordsCorrect">
-                    Select a different set or theme for the next sentence. Or check out this text in it's fuller context.
+                  <p
+                      class="quiz-instructions"
+                      v-else-if="allAuthorWordsCorrect"
+                  >
+                    Select a different set or theme for the next sentence. Or
+                    check out this text in it's fuller context.
                     <v-divider></v-divider>
                     <v-btn
                         class="ma-5"
@@ -303,29 +405,57 @@
                         @click="goToTextEntry()"
                     >
                       Text
-                      <v-icon
-                          end
-                      >
-                        mdi-book-open-variant
-                      </v-icon>
+                      <v-icon end> mdi-book-open-variant </v-icon>
                     </v-btn>
                   </p>
-                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && !grammarQuizMode">
+                  <p
+                      class="quiz-instructions"
+                      v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && !grammarQuizMode"
+                  >
                     Select the correct meaning.
                   </p>
-                  <p class="quiz-instructions" v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && grammarQuizMode">
+                  <p
+                      class="quiz-instructions"
+                      v-else-if="selectedQuizMode === 'authorbased' && !allAuthorWordsCorrect && grammarQuizMode"
+                  >
                     Select the correct grammatical form.
                   </p>
                 </v-card>
               </v-container>
-              <v-card class="mx-auto paper-card" v-if="selectedQuizMode === 'authorbased'">
+              <v-card
+                  class="mx-auto paper-card"
+                  v-if="selectedQuizMode === 'authorbased'"
+              >
                 <v-card-text>
-                <v-card-title>Text Result for {{ extendedResultsAuthor.quizWord }}</v-card-title>
-                <v-card-subtitle>Translation: <strong>{{ extendedResultsAuthor.answer }}</strong></v-card-subtitle>
-                <v-card-subtitle>Word as it appears in the text:</v-card-subtitle>
-                <li v-for="(word, index) in extendedResultsAuthor.wordsInText" :key="index"><strong>{{ word }}</strong> </li>
-                <br v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation">
-                <v-card-subtitle v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation">Extra Information for Grammar Question: <strong>{{grammarQuizzes[currentGrammarIndex].extraInformation}}</strong></v-card-subtitle>
+                  <v-card-title
+                  >Text Result for
+                    {{ extendedResultsAuthor.quizWord }}</v-card-title
+                  >
+                  <v-card-subtitle
+                  >Translation:
+                    <strong
+                    >{{ extendedResultsAuthor.answer }}</strong
+                    ></v-card-subtitle
+                  >
+                  <v-card-subtitle
+                  >Word as it appears in the text:</v-card-subtitle
+                  >
+                  <li
+                      v-for="(word, index) in extendedResultsAuthor.wordsInText"
+                      :key="index"
+                  >
+                    <strong>{{ word }}</strong>
+                  </li>
+                  <br
+                      v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation"
+                  />
+                  <v-card-subtitle
+                      v-if="grammarQuizMode && grammarQuizzes[currentGrammarIndex].extraInformation"
+                  >Extra Information for Grammar Question:
+                    <strong
+                    >{{grammarQuizzes[currentGrammarIndex].extraInformation}}</strong
+                    ></v-card-subtitle
+                  >
                 </v-card-text>
               </v-card>
               <br />
@@ -337,25 +467,34 @@
                   :selectedTheme="selectedTheme"
                   :selectedSet="selectedSet"
               />
-              <v-container v-if="selectedQuizMode === 'media'" class="inner-quiz-area">
+              <v-container
+                  v-if="selectedQuizMode === 'media'"
+                  class="inner-quiz-area"
+              >
                 <!-- Show "Well Done!" message and randomize button if the quiz is completed -->
-                <v-container v-if="Object.keys(correctAnswersCount).length === numberOfItemsInSet">
+                <v-container
+                    v-if="excludedWords.length === numberOfItemsInSet"
+                >
                   <v-card flat class="mb-3 paper-card">
                     <v-card-text>
                       <h3>🎉 Well Done! You have finished this section! 🎉</h3>
-                      <p>Select a new quiz or click the button below to randomize.</p>
+                      <p>
+                        Select a new quiz by going up or click the randomize button
+                      </p>
                     </v-card-text>
+                    <!-- Arrow up button -->
+                    <v-btn
+                        icon="mdi-arrow-up"
+                        variant="text"
+                        @click="scrollMeTo('selectTheme')"
+                    >
+                    </v-btn>
                     <!-- Randomize button -->
                     <v-btn
                         icon="mdi-shuffle-variant"
                         variant="text"
                         @click="randomTheme"
-                        v-if="selectedQuizMode !== '' && selectedQuizMode !== 'dialogue'"
                     ></v-btn>
-                    <!-- Arrow up button -->
-                    <v-btn icon color="primary" class="mt-3" @click="scrollMeTo('selectTheme')">
-                      <v-icon>mdi-arrow-up</v-icon>
-                    </v-btn>
                   </v-card>
                 </v-container>
 
@@ -388,30 +527,42 @@
               <!-- Text Buttons for Multiple Choice Quiz -->
               <div v-if="selectedQuizMode === 'multiplechoice'">
                 <!-- Show "Well Done!" message and randomize button if the quiz is completed -->
-                <v-container v-if="Object.keys(correctAnswersCount).length === numberOfItemsInSet">
+                <v-container
+                    v-if="excludedWords.length === numberOfItemsInSet"
+                >
                   <v-card flat class="mb-3 paper-card">
                     <v-card-text>
                       <h3>🎉 Well Done! You have finished this section! 🎉</h3>
-                      <p>Select a new quiz or click the button below to randomize.</p>
+                      <p>
+                        Select a new quiz by going up or click the randomize button
+                      </p>
                     </v-card-text>
+                    <!-- Arrow up button -->
+                    <v-btn
+                        icon="mdi-arrow-up"
+                        variant="text"
+                        @click="scrollMeTo('selectTheme')"
+                    >
+                    </v-btn>
                     <!-- Randomize button -->
                     <v-btn
                         icon="mdi-shuffle-variant"
                         variant="text"
                         @click="randomTheme"
-                        v-if="selectedQuizMode !== '' && selectedQuizMode !== 'dialogue'"
                     ></v-btn>
-                    <!-- Arrow up button -->
-                    <v-btn icon color="primary" class="mt-3" @click="scrollMeTo('selectTheme')">
-                      <v-icon>mdi-arrow-up</v-icon>
-                    </v-btn>
                   </v-card>
                 </v-container>
+
 
                 <!-- Multiple Choice Quiz Area -->
                 <v-container v-else>
                   <v-row>
-                    <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
+                    <v-col
+                        v-for="item in answers"
+                        :key="item.option"
+                        cols="12"
+                        sm="6"
+                    >
                       <v-btn
                           @click="checkAnswer(item);"
                           class="ma-1"
@@ -434,26 +585,55 @@
               </div>
 
               <div v-if="selectedQuizMode === 'authorbased'">
-                <GrammarDetails :clickedWord="clickedWord" :forceUpdate="forceUpdate" />
+                <GrammarDetails
+                    :clickedWord="clickedWord"
+                    :forceUpdate="forceUpdate"
+                />
 
                 <v-row v-if="!allAuthorWordsCorrect && grammarQuizMode">
-                <v-col v-for="item in grammarQuizzes[currentGrammarIndex].options" :key="item.option" cols="12" sm="6">
-                  <v-btn @click="checkGrammarAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
-                    <span>{{ truncateText(item.option) }}</span>
-                  </v-btn>
-                </v-col>
-                  </v-row>
+                  <v-col
+                      v-for="item in grammarQuizzes[currentGrammarIndex].options"
+                      :key="item.option"
+                      cols="12"
+                      sm="6"
+                  >
+                    <v-btn
+                        @click="checkGrammarAnswer(item);"
+                        class="ma-1"
+                        :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }"
+                        :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'"
+                        block
+                    >
+                      <span>{{ truncateText(item.option) }}</span>
+                    </v-btn>
+                  </v-col>
+                </v-row>
 
                 <v-row v-if="!allAuthorWordsCorrect && !grammarQuizMode">
-                  <v-col v-for="item in answers" :key="item.option" cols="12" sm="6">
-                    <v-btn @click="checkAnswer(item);" class="ma-1" :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }" :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'" block>
+                  <v-col
+                      v-for="item in answers"
+                      :key="item.option"
+                      cols="12"
+                      sm="6"
+                  >
+                    <v-btn
+                        @click="checkAnswer(item);"
+                        class="ma-1"
+                        :class="{ 'answer-correct': answerStates[item.option]?.isCorrect, 'answer-incorrect': !answerStates[item.option]?.isCorrect && answerStates[item.option]?.selected }"
+                        :color="answerStates[item.option]?.selected ? (answerStates[item.option]?.isCorrect ? '#1de9b6': '#e9501d') : 'triadic'"
+                        block
+                    >
                       <span>{{ truncateText(item.option) }}</span>
                     </v-btn>
                   </v-col>
                 </v-row>
                 <v-card class="paper-card ma-3">
-                  <v-card-title v-if="!allAuthorWordsCorrect" class="text-wrap white-space-normal break-words">
-                    Reveal words by answering correctly. Click the word for a declension attempt after 2 correct answers!
+                  <v-card-title
+                      v-if="!allAuthorWordsCorrect"
+                      class="text-wrap white-space-normal break-words"
+                  >
+                    Reveal words by answering correctly. Click the word for a
+                    declension attempt after 2 correct answers!
                   </v-card-title>
                   <h2>
                     <span
@@ -466,11 +646,16 @@
                     </span>
                   </h2>
                   <v-divider v-if="allAuthorWordsCorrect"></v-divider>
-                  <h3 v-if="allAuthorWordsCorrect">{{ authorSpecificContent.translation }}</h3>
+                  <h3 v-if="allAuthorWordsCorrect">
+                    {{ authorSpecificContent.translation }}
+                  </h3>
                 </v-card>
               </div>
-              <AnalyzeResults v-if="isComprehensive" :analyzeResults="analyzeResults" />
-              <div style="margin: 5em auto;">
+              <AnalyzeResults
+                  v-if="isComprehensive"
+                  :analyzeResults="analyzeResults"
+              />
+              <div style="margin: 5em auto">
                 <v-data-table
                     v-if="selectedQuizMode !== 'dialogue' && selectedQuizMode !== '' && showHistoryIndicator && selectedTheme !== ''"
                     :disable-sort="true"
@@ -937,18 +1122,18 @@ export default {
 
               extendedSearch(newResult.answer, selectedAnswer.option);
               newResult.answer.wordsInText.forEach(word => {
-                  if (!wordOpacities.value[word]) {
-                    wordOpacities.value[word] = numberOfAnswersNeeded.value;
-                  }
+                if (!wordOpacities.value[word]) {
+                  wordOpacities.value[word] = numberOfAnswersNeeded.value;
+                }
                 // Calculate and round the increment to the nearest number
                 const increment = Math.round(100 / numberOfAnswersNeeded.value);
                 wordOpacities.value[word] += increment;
-                  if (wordOpacities.value[word] >= 100) {
-                    wordOpacities.value[word] = 100;
-                     if (!excludedWords.value.includes(newResult.answer.quizWord)) {
-                       excludedWords.value.push(newResult.answer.quizWord);
-                     }
+                if (wordOpacities.value[word] >= 100) {
+                  wordOpacities.value[word] = 100;
+                  if (!excludedWords.value.includes(newResult.answer.quizWord)) {
+                    excludedWords.value.push(newResult.answer.quizWord);
                   }
+                }
               });
             }
 
@@ -1261,7 +1446,7 @@ h4 {
   border-radius: 8px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   padding: 20px;
-  font-family: 'Roboto', serif;
+  font-family: "Roboto", serif;
 }
 
 .answer-correct {
@@ -1285,15 +1470,27 @@ h4 {
 }
 
 @keyframes running-border {
-  0% { border-color: #1CBCD1; }
-  50% { border-color: #1de9b6; }
-  100% { border-color: #1cd18c; }
+  0% {
+    border-color: #1cbcd1;
+  }
+  50% {
+    border-color: #1de9b6;
+  }
+  100% {
+    border-color: #1cd18c;
+  }
 }
 
 @keyframes running-border-error {
-  0% { border-color: #982110; }
-  50% { border-color: #ff0000; }
-  100% { border-color: #f6624c; }
+  0% {
+    border-color: #982110;
+  }
+  50% {
+    border-color: #ff0000;
+  }
+  100% {
+    border-color: #f6624c;
+  }
 }
 
 .quiz-word-container {
@@ -1340,7 +1537,6 @@ h4 {
     margin-right: 5em;
     margin-left: 5em;
   }
-
 }
 
 .quiz-instructions {
@@ -1359,10 +1555,13 @@ h4 {
   }
 }
 
-
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .user-speaker .dialogue-bubble {
@@ -1398,5 +1597,4 @@ h4 {
 .quiz-button {
   margin: 1em;
 }
-
 </style>
