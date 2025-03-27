@@ -87,6 +87,7 @@ export default {
 
 <style>
 #typing-text {
+  height: 10em;
   font-size: 1.5em;
   color: var(--v-primary-base);
 }

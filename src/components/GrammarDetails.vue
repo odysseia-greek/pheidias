@@ -28,12 +28,12 @@ export default {
         const { onResult } = useQuery(CheckGrammar, { word });
         onResult((response) => {
           if (response.data) {
-            grammarResults.value = response.data.grammar;
+            grammarResults.value = response.data.grammar.results;
           } else {
             grammarResults.value = [{
               word,
               rootWord: word,
-              translation: ['No declension found.', 'Unfortunately the grammar component is not complete (yet)', 'Try searching the dictionary with partial or fuzzy results.'],
+              translations: ['No declension found.', 'Unfortunately the grammar component is not complete (yet)', 'Try searching the dictionary with partial or fuzzy results.'],
               rule: 'No rule found',
             }];
           }
@@ -114,7 +114,7 @@ export default {
                   <v-list-item-subtitle class="ma-1">
                     <strong>Translations:</strong>
                     <v-list-item
-                        v-for="(translation, j) in result.translation"
+                        v-for="(translation, j) in result.translations"
                         :key="j"
                         :title="j+1 + '. ' + translation"
                         class="ma-0"

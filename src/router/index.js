@@ -1,12 +1,17 @@
 import { createRouter, createWebHistory } from 'vue-router';
 
 const routerOptions = [
-    { path: "/", view: "HomePage", },
+    { path: "/", view: "HomePage" },
     {
-        path: '/quiz',
-        view: "Sokrates",
-        name: "Sokrates",
-        query: ["quizmode", "theme"],
+        path: "/quiz",
+        view: "SokratesHome",
+        name: "SokratesHome",
+    },
+    {
+        path: "/quiz/media",
+        view: "SokratesMedia",
+        name: "QuizMedia",
+        query: ["theme", "segment", "extendedResults", "doneAfter"],
     },
     {
         path: "/texts",
@@ -16,7 +21,7 @@ const routerOptions = [
     },
     {
         path: "/dictionary",
-        view: "Alexandros" ,
+        view: "Alexandros",
         name: "Alexandros",
         query: ["language", "mode", "word", "extended"],
     },
@@ -26,16 +31,27 @@ const routerOptions = [
         name: "Dionysios",
         query: ["word"],
     },
-    // Updated catch-all route
-    { path: '/:pathMatch(.*)*', view: "NotFound" },
+    { path: "/:pathMatch(.*)*", view: "NotFound" },
 ];
 
 const routes = routerOptions.map((route) => {
+    if (route.children) {
+        return {
+            ...route,
+            component: () => import(`../views/${route.view}.vue`),
+            children: route.children.map((child) => ({
+                ...child,
+                component: () => import(`../views/${child.view}.vue`),
+            })),
+        };
+    }
+
     return {
         ...route,
         component: () => import(`../views/${route.view}.vue`),
     };
 });
+
 
 const router = createRouter({
     history: createWebHistory(process.env.BASE_URL),

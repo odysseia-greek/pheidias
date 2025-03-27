@@ -14,31 +14,37 @@
             <h3 class="text-h5 mb-2" style="margin-top: 5em; margin-left: 1em; margin-right: 1em; text-align: center">
               Choose your career in Ancient Greek
             </h3>
-            <v-row class="d-flex justify-center text-center">
-              <v-col cols="12" md="4">
-                <v-btn color="#ffd700" class="mx-4" width="10em" :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
-                  Philosopher
-                </v-btn>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-btn color="#c0c0c0" class="mx-4" width="10em" :href="'/quiz?quizmode=authorbased&theme=Plato+-+Euthypro'">
-                  Sophist
-                </v-btn>
-              </v-col>
-              <v-col cols="12" md="4">
-                <v-btn color="#cd7f32" class="mx-4" width="10em" :href="'/quiz?quizmode=media&theme=Basic'">
-                  Demagogue
-                </v-btn>
-              </v-col>
-            </v-row>
-            <v-icon class="mt-4" size="36">
+              <v-row class="d-flex justify-center text-center">
+                <v-col cols="12" md="4">
+                  <v-btn color="#ffd700" class="mx-4" width="10em"
+                         :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
+                    {{ buttonTexts.philosopher }}
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-btn color="#c0c0c0" class="mx-4" width="10em"
+                         :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Histories'">
+                    {{ buttonTexts.sophist }}
+                  </v-btn>
+                </v-col>
+                <v-col cols="12" md="4">
+                  <v-btn color="#cd7f32" class="mx-4" width="10em"
+                         :href="'quiz/media?theme=Basic&segment=First+Words+1'">
+                    {{ buttonTexts.demagogue }}
+                  </v-btn>
+                </v-col>
+              </v-row>
+            <v-icon class="mt-4 scroll-icon" size="36" @click="scrollMeTo('exampleSectionRef')">
               mdi-chevron-down
             </v-icon>
-            <p class="scroll-indicator" style="margin-top: 1em; text-align: center">Scroll down for more info about Odysseia-Greek</p>
+            <p class="scroll-indicator" style="margin-top: 1em; text-align: center">
+              Scroll down for more info about Odysseia-Greek
+            </p>
           </div>
         </v-parallax>
 
         <v-container fluid style="max-width: 1400px">
+          <div ref="exampleSectionRef"></div>
           <v-card color="triadic" style="margin-bottom: 1em; padding: 2em;" elevation="10" rounded="lg">
             <v-card-text>
               <v-row>
@@ -136,7 +142,7 @@
 </template>
 
 <script>
-import { ref, onMounted } from 'vue';
+import {ref, onMounted, nextTick} from 'vue';
 import TypingText from "@/components/TypingText.vue";
 import SearchComponent from "@/components/SearchBar.vue";
 
@@ -146,7 +152,13 @@ export default {
   setup() {
     const flex = ref(6);
     const odysseus = ref('');
+    const exampleSectionRef = ref();
     const images = import.meta.glob('/src/assets/*.webp');
+    const buttonTexts = ref({
+      philosopher: "Philosopher",
+      sophist: "Sophist",
+      demagogue: "Demagogue"
+    });
 
     const loadImage = () => {
       import('@/assets/odysseus.webp').then((module) => {
@@ -161,6 +173,14 @@ export default {
           images[importPath]().then((module) => {
             card.src = module.default;
           });
+        }
+      });
+    };
+
+    const scrollMeTo = (refName) => {
+      nextTick(() => {
+        if (refName === 'exampleSectionRef' && exampleSectionRef.value) {
+          exampleSectionRef.value.scrollIntoView({ behavior: 'smooth' });
         }
       });
     };
@@ -198,10 +218,6 @@ export default {
       {
         greek: "Αἶψα γὰρ ἐν κακότητι βροτοὶ καταγηράσκουσιν.",
         translation: "Hardship can age a person overnight."
-      },
-      {
-        greek: "Ἡροδότου Ἁλικαρνησσέος ἱστορίης ἀπόδεξις ἥδε, ὡς μήτε τὰ γενόμενα ἐξ ἀνθρώπων τῷ χρόνῳ ἐξίτηλα γένηται, μήτε ἔργα μεγάλα τε καὶ θωμαστά, τὰ μὲν Ἕλλησι τὰ δὲ βαρβάροισι ἀποδεχθέντα, ἀκλεᾶ γένηται, τά τε ἄλλα καὶ διʼ ἣν αἰτίην ἐπολέμησαν ἀλλήλοισι.",
-        translation: "This is the display of the inquiry of Herodotus of Halicarnassus, so that things done by man not be forgotten in time, and that great and marvelous deeds, some displayed by the Hellenes, some by the barbarians, not lose their glory, including among others what was the cause of their waging war on each other."
       },
       {
         greek: "κακῶς φρονοῦντες· ὡς τρὶς ἂν παρ’ ἀσπίδα στῆναι θέλοιμ’ ἂν μᾶλλον ἢ τεκεῖν ἅπαξ.",
@@ -254,6 +270,7 @@ export default {
     const isMobile = () => screen.width <= 900;
 
     onMounted(() => {
+      let showingAdvanced = true;
       loadImage();
       loadCardImages();
       if (isMobile()) {
@@ -264,35 +281,32 @@ export default {
       } else {
         flex.value = 6;
       }
+
+      const interval = setInterval(() => {
+          // After blinking, switch all button texts
+          showingAdvanced = !showingAdvanced;
+          buttonTexts.value.philosopher = showingAdvanced ? "Advanced" : "Philosopher";
+          buttonTexts.value.sophist = showingAdvanced ? "Intermediate" : "Sophist";
+          buttonTexts.value.demagogue = showingAdvanced ? "Beginner" : "Demagogue";
+
+      }, 4000); // Adjust timing as needed
     });
+
 
     return {
       flex,
+      buttonTexts,
       odysseus,
       cards,
       introTexts,
+      exampleSectionRef,
+      scrollMeTo,
     };
   },
 };
 </script>
 
 <style>
-.scroll-indicator {
-  animation: bounce 2s infinite;
-}
-
-@keyframes bounce {
-  0%, 20%, 50%, 80%, 100% {
-    transform: translateY(0);
-  }
-  40% {
-    transform: translateY(-10px);
-  }
-  60% {
-    transform: translateY(-5px);
-  }
-}
-
 .my-text-block {
   margin-bottom: 1em; /* Adjust this value as needed */
 }

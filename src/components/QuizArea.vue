@@ -823,7 +823,6 @@ export default {
     };
 
     const scrollMeTo = (refName) => {
-      console.log(refName);
       nextTick(() => {
         if (refName === 'quiz' && quizContainerRef.value) {
           quizContainerRef.value.scrollIntoView({ behavior: 'smooth' });
