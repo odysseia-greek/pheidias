@@ -1,14 +1,35 @@
 <template>
   <v-container v-if="dialogueOptions">
     <!-- Introduction -->
-    <v-card class="mb-3 paper-card">
+    <v-card class="paper-card mb-4" elevation="4">
       <v-card-title>Introduction</v-card-title>
       <v-card-text>{{ dialogueOptions.introduction }}</v-card-text>
+
+      <v-card-title>Text Information</v-card-title>
+      <v-card-text>
+        <v-row>
+          <v-col cols="12" sm="6">
+            <strong>Section:</strong> {{ dialogueOptions.section }}
+          </v-col>
+          <v-col cols="12" sm="6">
+            <strong>Perseus:</strong>
+            <a :href="dialogueOptions.linkToPerseus" target="_blank" rel="noopener">
+              Link
+            </a>
+          </v-col>
+        </v-row>
+      </v-card-text>
+
       <v-card-title>What role do you want to play?</v-card-title>
       <v-card-text>
         <v-row>
           <v-col v-for="(speaker, index) in dialogueOptions.speakers" :key="index" cols="12" sm="6">
-            <v-btn class="ma-1" :color="selectedSpeaker === speaker.shorthand ? 'primary' : 'triadic'" block @click="setSpeaker(speaker);scrollMeTo('dialogueRef');">
+            <v-btn
+                class="ma-1"
+                :color="selectedSpeaker === speaker.shorthand ? 'primary' : 'triadic'"
+                block
+                @click="setSpeaker(speaker);scrollMeTo('dialogueRef');"
+            >
               {{ speaker.shorthand }} {{ speaker.translation }}
             </v-btn>
           </v-col>
@@ -72,17 +93,17 @@
 
 <script>
 import { ref, watch, nextTick } from 'vue';
-import {useQuery} from "@vue/apollo-composable";
-import {SokratesCheckDialogue} from "@/constants/graphql";
+import {DialogueBasedAnswer} from "@/constants/dialogueBasedGraphql";
+import {apolloClient} from "@/apollo";
 
 export default {
   name: 'Dialogue',
   props: {
     dialogueOptions: Object,
     dialogueContent: Object,
-    selectedQuizMode: String,
     selectedTheme: String,
     selectedSet: Number,
+    boule: String,
   },
   setup(props) {
     const selectedSpeaker = ref('');
@@ -189,7 +210,7 @@ export default {
       }
     };
 
-    const checkDialogueAnswer = () => {
+    const checkDialogueAnswer = async () => {
       const dialogueData = dialogueText.value.map(({ isWronglyPlaced, isCorrectlyPlaced, __typename, ...rest }, index) => {
         return { ...rest, place: index + 1 };
       });
@@ -200,41 +221,49 @@ export default {
         };
       });
 
-      const { result } = useQuery(SokratesCheckDialogue, {
-        theme: props.selectedTheme,
-        quizType: props.selectedQuizMode,
-        set: String(props.selectedSet),
-        dialogue: dialogueData,
+      const {data} = await apolloClient.query({
+        query: DialogueBasedAnswer,
+        variables: {
+          input: {
+            theme: props.selectedTheme,
+            set: String(props.selectedSet),
+            content: dialogueData,
+          },
+        },
+        context: {
+          headers: {
+            'boule': props.boule,
+          },
+        },
         fetchPolicy: 'no-cache',
       });
 
-      watch(result, (newResult) => {
-        if (newResult) {
-          wronglyPlaced.value = newResult.answer.wronglyPlaced;
-          wronglyPlaced.value.forEach((wrongItem) => {
-            const index = wrongItem.place - 1;
-            if (dialogueText.value[index]) {
-              if (dialogueText.value[index].speaker === selectedSpeaker.value) {
-                dialogueText.value[index].isWronglyPlaced = true;
-              }
+      const result = data.dialogueAnswer;
 
+      if (result.wronglyPlaced) {
+        wronglyPlaced.value = result.wronglyPlaced;
+        wronglyPlaced.value.forEach((wrongItem) => {
+          const index = wrongItem.place - 1;
+          if (dialogueText.value[index]) {
+            if (dialogueText.value[index].speaker === selectedSpeaker.value) {
+              dialogueText.value[index].isWronglyPlaced = true;
             }
-          });
+          }
+        });
+      }
 
-          // Set isCorrectlyPlaced to true for correctly placed items
-          dialogueText.value.forEach((text, index) => {
-            if (!wronglyPlaced.value.some((wrongItem) => wrongItem.place - 1 === index)) {
-              if (dialogueText.value[index].speaker === selectedSpeaker.value) {
-                dialogueText.value[index].isCorrectlyPlaced = true;
-                setTimeout(() => {
-                  dialogueText.value[index].isCorrectlyPlaced = false;
-                }, 5000); // Remove the flashing effect after 10 seconds
-              }
-            }
-          });
+      // Set isCorrectlyPlaced to true for correctly placed items
+      dialogueText.value.forEach((text, index) => {
+        if (!wronglyPlaced.value.some((wrongItem) => wrongItem.place - 1 === index)) {
+          if (dialogueText.value[index].speaker === selectedSpeaker.value) {
+            dialogueText.value[index].isCorrectlyPlaced = true;
+            setTimeout(() => {
+              dialogueText.value[index].isCorrectlyPlaced = false;
+            }, 5000); // Remove the flashing effect after 5 seconds
+          }
         }
       });
-    };
+    }
 
     const createNewArray = async (shuffledArray) => {
       for (let i = shuffledArray.length - 1; i > 0; i--) {

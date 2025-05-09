@@ -7,6 +7,8 @@ import { useRoute } from 'vue-router';
 import {useBouleId} from '@/composables/useBoule';
 import AnalyzeResults from "@/components/AnalyzeResults.vue";
 import QuizProgress from "@/components/QuizProgress.vue";
+import HistoryTable from "@/components/HistoryTable.vue";
+import { updateQuizUrl } from '@/utils/sharedQuiz.js';
 
 const { proxy } = getCurrentInstance();
 const theme = ref('');
@@ -45,12 +47,7 @@ const quizProgress = ref([]);
 
 const route = useRoute();
 const boule = useBouleId();
-
-const headers = [
-  { text: 'Greek', value: 'greek', align: 'center' },
-  { text: 'Provided Answer', value: 'input', align: 'center' },
-];
-const historyTable = ref([]);
+const newHistoryItemToPush = ref(null);
 
 const { result: optionsResult, loading, onResult } = useQuery(MediaOptions);
 
@@ -69,18 +66,24 @@ watch([theme, segment], ([newTheme, newSegment]) => {
 
 watch([comprehensive], ([newComprehensive]) => {
   if (newComprehensive ) {
-    updateUrl({
-      comprehensive: newComprehensive,
-    });
+    updateQuizUrl(
+        proxy.$router,
+        proxy.$route.query,
+        'QuizMedia',
+        { comprehensive: newComprehensive }
+    );
   }
 })
 
 
 watch([ numberOfAnswersNeeded], ([newNumberOfAnswersNeeded]) => {
   if (newNumberOfAnswersNeeded) {
-    updateUrl({
-      doneAfter: newNumberOfAnswersNeeded,
-    });
+    updateQuizUrl(
+        proxy.$router,
+        proxy.$route.query,
+        'QuizMedia',
+        { doneAfter: newNumberOfAnswersNeeded }
+    );
   }
 })
 
@@ -192,15 +195,11 @@ const checkAnswer = async (selectedAnswer) => {
       updateProgressStats(result.progress);
     }
 
-
-    const color = correct.value ? '#1cd18c' : '#e9501d';
-    const lastAnswer = {
+    newHistoryItemToPush.value = {
       greek: quizWord.value,
-      color: color,
       input: selectedAnswer.option,
+      correct: correct.value,
     };
-
-    historyTable.value.unshift(lastAnswer);
 
     if (correct.value) {
       setTimeout(() => {
@@ -241,9 +240,12 @@ const onThemeChange = (selected) => {
     finished.value = false
   }
 
-  updateUrl({
-    theme: themeData.name,
-  });
+  updateQuizUrl(
+      proxy.$router,
+      proxy.$route.query,
+      'QuizMedia',
+      {     theme: themeData.name, }
+  );
 };
 
 const selectSegment = (s) => {
@@ -257,10 +259,15 @@ const selectSegment = (s) => {
 
   finished.value = false
 
-  updateUrl({
-    theme: theme.value,
-    segment: segment.value,
-  });
+  updateQuizUrl(
+      proxy.$router,
+      proxy.$route.query,
+      'QuizMedia',
+      {
+        theme: theme.value,
+        segment: segment.value,
+      }
+  );
 };
 
 const randomize = () => {
@@ -280,10 +287,15 @@ const randomize = () => {
     set.value = 1;
   }
 
-  updateUrl({
-    theme: theme.value,
-    segment: segment.value,
-  })
+  updateQuizUrl(
+      proxy.$router,
+      proxy.$route.query,
+      'QuizMedia',
+      {
+        theme: theme.value,
+        segment: segment.value,
+      }
+  );
 
   // Show full form and start quiz
   setupStep.value = 10;
@@ -295,19 +307,6 @@ const scrollMeTo = (refName) => {
       quizContainerRef.value.scrollIntoView({ behavior: 'smooth' });
     }
   });
-};
-
-const updateUrl = (query) => {
-  const currentQuery = proxy.$route.query;
-  const newQuery = { ...currentQuery, ...query };
-
-  const queryChanged = Object.keys(query).some(
-      key => String(currentQuery[key] || '') !== String(query[key])
-  );
-
-  if (queryChanged) {
-    proxy.$router.replace({ name: 'QuizMedia', query: newQuery });
-  }
 };
 
 const initializeFromRoute = () => {
@@ -324,15 +323,17 @@ const initializeFromRoute = () => {
     numberOfAnswersNeeded.value = parseInt(qDoneAfter, 10);
   }
 
-  const themeObj = themes.value.find(t => t.name.toLowerCase() === qTheme.toLowerCase());
+  if (qTheme) {
+    const themeObj = themes.value.find(t => t.name.toLowerCase() === qTheme.toLowerCase());
 
-  if (themeObj) {
-    if (qSegment) {
-      const segmentObj = themeObj.segments.find(
-          s => s.name.toLowerCase() === qSegment.toLowerCase()
-      );
-      if (segmentObj) {
-        selectSegment(segmentObj);
+    if (themeObj) {
+      if (qSegment) {
+        const segmentObj = themeObj.segments.find(
+            s => s.name.toLowerCase() === qSegment.toLowerCase()
+        );
+        if (segmentObj) {
+          selectSegment(segmentObj);
+        }
       }
     }
   }
@@ -411,6 +412,17 @@ const initializeFromRoute = () => {
                   Searches the quiz word in all it's declined forms in texts from the text component. It was also show similar words coming from the Dictionary.
 
                   This can be toggled on and off.
+                </v-list-item>
+              </v-list-item>
+              <v-divider></v-divider>
+              <br>
+
+              <v-list-item>
+                <v-list-item-title>
+                  <strong>Images:</strong>
+                </v-list-item-title>
+                <v-list-item>
+                  Currently all images are generated using AI. This can be bothersome to some people but it is the only way it is feasaibile for odysseia-greek at this point.
                 </v-list-item>
               </v-list-item>
               <v-divider></v-divider>
@@ -516,6 +528,7 @@ const initializeFromRoute = () => {
         </div>
 
         <QuizProgress
+            v-if="quizWord !== ''"
             :progress="quizProgress"
             :neededCorrectCount="numberOfItemsInSet * numberOfAnswersNeeded"
             :streak="streak"
@@ -632,50 +645,10 @@ const initializeFromRoute = () => {
         </v-col>
       </v-row>
     <AnalyzeResults
-        v-if="comprehensive"
+        v-if="comprehensive && correct"
         :analyzeResults="analyzeResults"
     />
-    <div style="margin: 5em auto">
-      <v-data-table
-          v-if="showHistoryIndicator"
-          :disable-sort="true"
-          :headers="headers"
-          :items="historyTable"
-          :items-per-page="5"
-          class="elevation-1"
-      >
-        <template v-slot:item.input="{ item }">
-          <v-chip :color="item.color">{{ item.input }}</v-chip>
-        </template>
-      </v-data-table>
-    </div>
+    <HistoryTable v-if="showHistoryIndicator" :new-entry="newHistoryItemToPush" />
     </v-container>
 
 </template>
-
-<style scoped>
-
-.pulsate {
-  animation: pulse-border 2s infinite;
-}
-
-@keyframes pulse-border {
-  0% {
-    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
-  }
-  70% {
-    box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
-  }
-}
-
-.no-bullets {
-  list-style-type: none;
-  padding-left: 0;
-  margin: 0;
-}
-
-
-</style>

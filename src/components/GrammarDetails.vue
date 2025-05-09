@@ -44,7 +44,7 @@ export default {
     };
 
     const goToDictionaryEntry = (rootWord) => {
-      const url = `dictionary?mode=exact&language=greek&extended=true&word=${encodeURIComponent(rootWord)}`;
+      const url = `/dictionary?mode=exact&language=greek&extended=true&word=${encodeURIComponent(rootWord)}`;
       window.open(url, '_blank');
     }
 
@@ -57,7 +57,7 @@ export default {
         rootWord = rootWord.split(',')[0].trim();
       }
 
-      const url = `grammar?word=${encodeURIComponent(rootWord)}`;
+      const url = `/grammar?word=${encodeURIComponent(rootWord)}`;
       window.open(url, '_blank');
     }
 

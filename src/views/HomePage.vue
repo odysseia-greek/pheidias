@@ -17,13 +17,13 @@
               <v-row class="d-flex justify-center text-center">
                 <v-col cols="12" md="4">
                   <v-btn color="#ffd700" class="mx-4" width="10em"
-                         :href="'/quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'">
+                         :href="'/quiz/dialogue?theme=Plato+-+Euthyphro'">
                     {{ buttonTexts.philosopher }}
                   </v-btn>
                 </v-col>
                 <v-col cols="12" md="4">
                   <v-btn color="#c0c0c0" class="mx-4" width="10em"
-                         :href="'/quiz?quizmode=authorbased&theme=Herodotos+-+Histories'">
+                         :href="'/quiz/authorbased?theme=Herodotos+-+Histories&segment=1.1.0'">
                     {{ buttonTexts.sophist }}
                   </v-btn>
                 </v-col>

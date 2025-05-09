@@ -14,6 +14,35 @@ const routerOptions = [
         query: ["theme", "segment", "extendedResults", "doneAfter"],
     },
     {
+        path: "/quiz/multiplechoice",
+        view: "SokratesMultipleChoice",
+        name: "QuizMultipleChoice",
+        query: ["theme", "extendedResults", "doneAfter"],
+    },
+    {
+        path: "/quiz/authorbased",
+        view: "SokratesAuthorBased",
+        name: "QuizAuthorBased",
+        query: ["theme", "segment", "doneAfter"],
+    },
+    {
+        path: "/quiz/dialogue",
+        view: "SokratesDialogue",
+        name: "QuizDialogue",
+        query: ["theme", "set"],
+    },
+    {
+        path: "/quiz/grammar",
+        view: "SokratesGrammar",
+        name: "QuizGrammar",
+        query: ["theme", "segment", "set", "extendedResults", "doneAfter"],
+    },
+    {
+        path: "/quiz/journey",
+        view: "SokratesJourney",
+        name: "Journey",
+    },
+    {
         path: "/texts",
         view: "Herodotos",
         name: "Herodotos",

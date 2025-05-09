@@ -121,7 +121,7 @@ rapid learning and recall. It also includes a comprehensive mode, where words ar
 in actual texts for an enhanced learning experience.`,
         image: 'alexander.webp',
         src: '',
-        route: 'quiz?quizmode=multiplechoice&theme=Basic'
+        route: 'quiz/multiplechoice'
       },
       {
         id: 3,
@@ -136,7 +136,7 @@ Each word is clickable, allowing you to explore its grammatical form, such as: �
 Some words may also require selecting the correct grammatical form.`,
         image: 'alexandria.webp',
         src: '',
-        route: '/quiz?quizmode=authorbased&theme=Thucydides+-+History+of+the+Peloponnesian+War'
+        route: '/quiz/authorbased'
       },
       {
         id: 4,
@@ -150,30 +150,34 @@ You’ll select a character and then reconstruct the correct order of the conver
 and feedback is available along the way to guide your learning.`,
         image: 'sokrates.webp',
         src: '',
-        route: 'quiz?quizmode=dialogue&theme=Plato+-+Euthyphro'
+        route: '/quiz/dialogue'
       },
       {
         id: 5,
         color: "triadic",
         name: 'Grammar',
-        greekName: 'Antisthenes – Ἀντισθένης (planned)',
+        greekName: 'Antisthenes – Ἀντισθένης',
         level: 'Intermediate',
-        description: `A planned mode focused on grammar drills. You'll be able to identify, conjugate,
+        description: `A mode focused on grammar drills. You'll be able to identify, conjugate,
 and decline words. This mode will test your understanding of Greek morphology, covering nouns, verbs, and participles.`,
         image: 'grammar.webp',
         src: '',
+        route: '/quiz/grammar'
       },
       {
         id: 6,
         color: "triadic",
         name: 'Journey Mode',
-        greekName: 'Alkibiades – Ἀλκιβιάδης (planned)',
+        greekName: 'Alkibiades – Ἀλκιβιάδης (preview)',
         level: 'All Levels',
-        description: `An upcoming guided experience that blends multiple quiz types into a structured path.
-Each chapter will help you progress toward reading and understanding real Greek texts.
-Great for learners who want to follow a more narrative and progressive route.`,
+        description: `A guided experience that blends multiple quiz types into a structured path. These can be grammar based, media based,
+        or historical background.
+Each chapter will help you progress toward reading and understanding real Greek texts that are set in the context of a "theme" such as the Persian wars.
+Great for learners who want to follow a more narrative and progressive route. This mode is still in development and will be updated in the future.
+It does not work well on mobile devices, so we recommend using a laptop or tablet for best results.`,
         image: 'odysseus.webp',
         src: '',
+        route: 'quiz/journey'
       }
     ]);
 

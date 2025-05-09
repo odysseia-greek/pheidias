@@ -26,6 +26,33 @@ export function useBouleId() {
     return cookie.sessionId;
 }
 
+export function getJourneyProgress(themeName) {
+    const cookie = cookies.get(COOKIE_NAME);
+    return cookie?.progress?.journeys?.[themeName] || { completed: [], current: 1 };
+}
+
+export function updateJourneyProgress(themeName, completedSegmentNumber) {
+    const cookie = cookies.get(COOKIE_NAME) || { progress: {} };
+
+    if (!cookie.progress.journeys) {
+        cookie.progress.journeys = {};
+    }
+
+    const journey = cookie.progress.journeys[themeName] || { completed: [], current: 1 };
+
+    if (!journey.completed.includes(completedSegmentNumber)) {
+        journey.completed.push(completedSegmentNumber);
+        journey.current = Math.max(journey.current, completedSegmentNumber + 1);
+    }
+
+    cookie.progress.journeys[themeName] = journey;
+
+    cookies.set(COOKIE_NAME, cookie, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+    });
+}
+
 export function saveProgress({ streak, totalPlayed, totalMistakes }) {
     let cookie = cookies.get(COOKIE_NAME);
 
@@ -56,5 +83,30 @@ export function getProgress() {
         totalPlayed: cookie.progress?.totalPlayed || 0,
         totalMistakes: cookie.progress?.totalMistakes || 0,
     };
+}
+
+export function saveHistory(history) {
+    const cookie = cookies.get(COOKIE_NAME) || {};
+
+    // Optional: strip out any future bloating
+    const slimmed = history.slice(0, 25).map(entry => ({
+        greek: entry.greek,
+        input: entry.input,
+        correct: !!entry.correct,
+    }));
+
+    cookie.history = slimmed;
+
+    cookies.set(COOKIE_NAME, cookie, {
+        path: '/',
+        maxAge: 60 * 60 * 24 * 30,
+    });
+}
+
+export function getHistory() {
+    const cookie = cookies.get(COOKIE_NAME);
+
+    if (!cookie || typeof cookie !== 'object') return [];
+    return cookie.history || [];
 }
 

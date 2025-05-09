@@ -146,3 +146,29 @@
         opacity: 1;
     }
 }
+
+.no-bullets {
+    list-style-type: none;
+    padding-left: 0;
+    margin: 0;
+}
+
+.pulsate {
+    animation: pulse-border 2s infinite;
+}
+
+.quiz-button {
+    margin: 1em;
+}
+
+@keyframes pulse-border {
+    0% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(0, 123, 255, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(0, 123, 255, 0);
+    }
+}
