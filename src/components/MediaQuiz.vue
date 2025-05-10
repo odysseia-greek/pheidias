@@ -37,6 +37,7 @@ const answers = ref([]);
 const numberOfItemsInSet = ref(0);
 const answerStates = reactive({});
 const loadedImages = reactive({});
+const imageMap = import.meta.glob('/src/assets/icons/*.webp');
 
 const totalPlayed = ref(0);
 const totalMistakes = ref(0);
@@ -115,11 +116,15 @@ const getMediaQuiz = async () => {
     numberOfItemsInSet.value = result.numberOfItems;
     answers.value = result.options;
 
-    // preload images
     for (const item of result.options) {
       const imgPath = `/src/assets/icons/${item.imageUrl}`;
-      const imgModule = await import(/* @vite-ignore */ imgPath);
-      loadedImages[item.imageUrl] = imgModule.default;
+      const importer = imageMap[imgPath];
+      if (importer) {
+        const module = await importer();
+        loadedImages[item.imageUrl] = module.default;
+      } else {
+        console.warn('Image not found for', item.imageUrl);
+      }
     }
 
     if (result.progress) {

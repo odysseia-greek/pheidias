@@ -56,15 +56,23 @@ const loadedImages = ref({})
 const shuffledWords = ref([])
 const shuffledImages = ref([])
 const matchedByAnswer = ref({})
+const imageMap = import.meta.glob('/src/assets/icons/*.webp');
 
 async function loadImages(files) {
   for (const item of files) {
     const key = item.answer
     if (!loadedImages.value[key]) {
-      try {
-        loadedImages.value[key] = `/src/assets/icons/${key}`
-      } catch (e) {
-        console.warn(`Image ${key} could not be loaded`, e)
+      const path = `/src/assets/icons/${key}`;
+      const importer = imageMap[path];
+      if (importer) {
+        try {
+          const module = await importer();
+          loadedImages.value[key] = module.default;
+        } catch (e) {
+          console.warn(`Image ${key} failed to load`, e);
+        }
+      } else {
+        console.warn(`No image found for ${path}`);
       }
     }
   }
