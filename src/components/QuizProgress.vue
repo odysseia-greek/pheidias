@@ -134,8 +134,11 @@ const worstThree = computed(() =>
 );
 
 watch(worstThree, (newWorst) => {
-  emit('updateWorst', newWorst);
+  if (newWorst && newWorst.length > 0) {  // Only emit if there are mistakes
+    emit('updateWorst', newWorst);
+  }
 }, { immediate: true });
+
 
 watch(
     () => [props.streak, props.totalPlayed, props.totalMistakes],

@@ -3,9 +3,10 @@ import {computed, onMounted, ref} from 'vue'
 
 import {JourneyCreateQuestion, JourneyOptions} from '@/constants/journeyBasedGraphql'
 import {useQuery} from "@vue/apollo-composable";
-import {getJourneyProgress, useBouleId} from "@/composables/useBoule";
+import {getJourneyProgress, updateJourneyProgress, useBouleId} from "@/composables/useBoule";
 import {apolloClient} from "@/apollo";
 import JourneyQuizArea from "@/components/journey/JourneyQuizArea.vue";
+
 
 const mapMode = ref(true)
 const journeyThemes = ref([])
@@ -15,7 +16,6 @@ const lastUnlocked = ref(1)
 const completedSegments = ref({})
 
 const currentQuiz = ref(null)
-const sectionFinished = ref(false)
 const boule = useBouleId();
 const currentStep = ref(0)
 const showIntro = ref(true)
@@ -56,7 +56,8 @@ function getStyle({ x, y }) {
 }
 
 function selectThemePoint(point) {
-  const progress = getJourneyProgress()
+  const progress = getJourneyProgress(point.theme.name)
+  completedSegments.value[point.theme.name] = progress.completed
   lastUnlocked.value = progress.current
   selectedJourney.value = point.theme
   showIntro.value = false
@@ -134,10 +135,13 @@ function markSegmentAsComplete() {
   if (!completedSegments.value[theme].includes(number)) {
     completedSegments.value[theme].push(number)
     completedSegments.value[theme].sort((a, b) => a - b)
+
+    updateJourneyProgress(theme, number)
   }
 
   mapMode.value = true
 }
+
 
 </script>
 
